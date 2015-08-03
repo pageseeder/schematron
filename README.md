@@ -1,6 +1,6 @@
-= Schematron Validator
+# Schematron Validator
 
-== About this library
+## About this library
 
 This library provides a simple Schematron validator in Java.
 
@@ -9,11 +9,11 @@ retains large portions of the code licenced under MIT and developed by Rick Jell
 
 We simply wanted a different and simpler Java API.
 
-== Dependencies
+## Dependencies
 
 This library requires an XSLT processor at runtime.
 
-== Testing
+## Testing
 
 If you want to test the code, ensure that you add the following to the ANT classpath:
 - Saxon (available in text/lib)
