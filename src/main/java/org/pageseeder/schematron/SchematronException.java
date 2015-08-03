@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.weborganic.schematron;
+package org.pageseeder.schematron;
 
 /**
  * Classes of exceptions occurring while preparing or performing Schematron validation.

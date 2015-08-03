@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.weborganic.schematron;
+package org.pageseeder.schematron;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -67,7 +67,7 @@ public final class ValidatorFactory {
   /**
    * Where all the XSLT used by Schematron are located.
    */
-  private static final String XSLT_ROOT = "/org/weborganic/schematron/xslt";
+  private static final String XSLT_ROOT = "/org/pageseeder/schematron/xslt";
 
   /** The standard schematron preprocessor */
   private static final String INCLUDE_PREPROCESSOR = XSLT_ROOT+"/iso_dsdl_include.xsl";
@@ -152,23 +152,26 @@ public final class ValidatorFactory {
     String preprocessor = null;
 
     if (binding == QueryBinding.XSLT2)
-      if (formatter.equalsIgnoreCase("message"))
+      if (formatter.equalsIgnoreCase("message")) {
         preprocessor = PREPROCESSOR_MESSAGE_XSLT2;
-      else
+      } else {
         preprocessor = PREPROCESSOR_SVRL_XSLT2;
+      }
 
     else if (binding == QueryBinding.XSLT1)
-      if (formatter.equalsIgnoreCase("message"))
+      if (formatter.equalsIgnoreCase("message")) {
         preprocessor = PREPROCESSOR_MESSAGE_XSLT1;
-      else
+      } else {
         preprocessor = PREPROCESSOR_SVRL_XSLT1;
+      }
 
     // TODO "auto" is handled as the default
     else
-      if (formatter.equalsIgnoreCase("message"))
+      if (formatter.equalsIgnoreCase("message")) {
         preprocessor = PREPROCESSOR_MESSAGE_XSLT1;
-      else
+      } else {
         preprocessor = PREPROCESSOR_SVRL_XSLT1;
+      }
 
     // Resolve the preprocessors from the resource
     this._preprocessor = resolvePreprocessor(preprocessor);
@@ -251,11 +254,8 @@ public final class ValidatorFactory {
   private Source resolveDefaultPreprocessor() {
     TransformerFactory f = TransformerFactory.newInstance();
     // TODO Detect if XSLT2 is supported. system-property('xsl:version')??
-    if (f.getClass().getName().startsWith("net.sf.saxon")) {
-      return resolvePreprocessor(PREPROCESSOR_SVRL_XSLT2);
-    } else {
-      return resolvePreprocessor(PREPROCESSOR_SVRL_XSLT1);
-    }
+    if (f.getClass().getName().startsWith("net.sf.saxon")) return resolvePreprocessor(PREPROCESSOR_SVRL_XSLT2);
+    else return resolvePreprocessor(PREPROCESSOR_SVRL_XSLT1);
   }
 
   /**

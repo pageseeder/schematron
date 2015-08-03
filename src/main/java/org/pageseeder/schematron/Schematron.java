@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.weborganic.schematron;
+package org.pageseeder.schematron;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
-import org.weborganic.schematron.ValidatorFactory.QueryBinding;
+import org.pageseeder.schematron.ValidatorFactory.QueryBinding;
 
 /**
  * An Ant task that allows user to validate a fileset of XML files with a Schematron schema.

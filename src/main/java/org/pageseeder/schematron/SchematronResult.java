@@ -26,7 +26,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.weborganic.schematron;
+package org.pageseeder.schematron;
 
 import java.io.IOException;
 import java.io.PrintStream;
