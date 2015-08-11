@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.pageseeder.schematron</groupId>
   <artifactId>pso-schematron</artifactId>
-  <version>1.2.0</version>
+  <version>1.2.1-SNAPSHOT</version>
   <name>Schematron</name>
   <description>Java API for Schematron</description>
 
@@ -26,7 +26,6 @@
     <connection>scm:git:git@github.com:pageseeder/schematron.git</connection>
     <developerConnection>scm:git:git@github.com:pageseeder/schematron.git</developerConnection>
     <url>git@github.com:pageseeder/schematron.git</url>
-    <tag>v.1.2.0</tag>
   </scm>
 
   <organization>
