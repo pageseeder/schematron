@@ -1,7 +1,28 @@
 /*
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ---------- Original copyright notice for this portion of the code ----------
+ *
+ * Adapted from work by Christophe Lauret and Willy Ekasalim
+ *
+ * Open Source Initiative OSI - The MIT License:Licensing
+ * [OSI Approved License]
+ *
  * The MIT License
  *
- * Copyright (c) 2012 Christophe Lauret, Allette Systems
+ * Copyright (c) 2008 Rick Jelliffe, Topologi Pty. Ltd, Allette Systems
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

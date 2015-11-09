@@ -1,7 +1,28 @@
 /*
+ * Copyright 2015 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * ---------- Original copyright notice for this portion of the code ----------
+ *
+ * Adapted from work by Christophe Lauret and Willy Ekasalim
+ *
+ * Open Source Initiative OSI - The MIT License:Licensing
+ * [OSI Approved License]
+ *
  * The MIT License
  *
- * Copyright (c) 2012 Christophe Lauret, Allette Systems
+ * Copyright (c) 2008 Rick Jelliffe, Topologi Pty. Ltd, Allette Systems
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -160,28 +181,28 @@ public final class Validator {
       sid = sid.substring(sid.lastIndexOf("!" )+1);
     }
 
-    if (anp != null && anp.length() > 0)
+    if (anp != null && anp.length() > 0) {
       transformer.setParameter("archiveNameParameter", anp);
-    else if (aid != null && aid.length() > 0){
+    } else if (aid != null && aid.length() > 0){
       transformer.setParameter("archiveNameParameter", aid.substring(aid.lastIndexOf("/" )+1));
     }
 
-    if (adp != null && adp.length() > 0)
+    if (adp != null && adp.length() > 0) {
       transformer.setParameter("archiveDirParameter", adp);
-    else if (aid != null && aid.length() > 0 && aid.lastIndexOf("/" )> -1){
+    } else if (aid != null && aid.length() > 0 && aid.lastIndexOf("/" )> -1){
       transformer.setParameter("archiveDirParameter", aid.substring(0, aid.lastIndexOf("/" )));
     }
 
     // provide the filenames
-    if (fnp != null && fnp.length() > 0)
+    if (fnp != null && fnp.length() > 0) {
       transformer.setParameter("fileNameParameter", fnp);
-    else if (sid != null && sid.length() > 0){
+    } else if (sid != null && sid.length() > 0){
       transformer.setParameter("fileNameParameter", sid.substring(sid.lastIndexOf("/" )+1));
     }
 
-    if (fdp != null && fdp.length() > 0)
+    if (fdp != null && fdp.length() > 0) {
       transformer.setParameter("fileDirParameter", fdp);
-    else if (sid != null && sid.length() > 0 && sid.lastIndexOf("/" )> -1){
+    } else if (sid != null && sid.length() > 0 && sid.lastIndexOf("/" )> -1){
       transformer.setParameter("fileDirParameter", sid.substring(0, sid.lastIndexOf("/" )));
     }
 
