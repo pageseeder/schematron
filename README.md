@@ -1,3 +1,5 @@
+[ ![Download](https://api.bintray.com/packages/pageseeder/maven/schematron/images/download.svg) ](https://bintray.com/pageseeder/maven/schematron/_latestVersion)
+
 # Schematron Validator
 
 ## About this library
