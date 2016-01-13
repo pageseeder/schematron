@@ -123,12 +123,12 @@ public final class Validator {
 
     String systemId = xml.getSystemId();
     String archiveId = "";
-    if (systemId != null && systemId.startsWith("jar:") || systemId.startsWith("zip:")) {
+    if (systemId != null && (systemId.startsWith("jar:") || systemId.startsWith("zip:"))) {
       archiveId = systemId.substring(0, systemId.lastIndexOf('!'));
       systemId = systemId.substring(systemId.lastIndexOf('!')+1);
     }
 
-    if (archiveId != null && archiveId.length() > 0){
+    if (archiveId != null && archiveId.length() > 0) {
       transformer.setParameter("archiveNameParameter", archiveId.substring(archiveId.lastIndexOf('/')+1));
     }
 
@@ -176,7 +176,7 @@ public final class Validator {
 
     String sid = xml.getSystemId();
     String aid = "";
-    if ( sid.startsWith("jar:") || sid.startsWith("zip:")) {
+    if (sid != null && (sid.startsWith("jar:") || sid.startsWith("zip:"))) {
       aid = sid.substring(0, sid.lastIndexOf("!" ));
       sid = sid.substring(sid.lastIndexOf("!" )+1);
     }
