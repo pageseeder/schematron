@@ -173,7 +173,8 @@ public final class SchematronResult {
   public void printAllMessage(PrintStream out) {
     if (this.failedAssertions.size() > 0 || this.successfulReports.size() > 0) {
 
-      out.println(("Source file: " + removePath(this.systemID)));
+      if (this.systemID != null)
+        out.println(("Source file: " + removePath(this.systemID)));
 
       // FIXME: TRYING TO ACCESS STRING AS A STRING RESULTS IN ERROR
 
@@ -185,6 +186,20 @@ public final class SchematronResult {
       }
     }
 
+  }
+
+  /**
+   * @return the list of failed assertions
+   */
+  public List<String> getFailedAssertions() {
+    return this.failedAssertions;
+  }
+
+  /**
+   * @return the list of successful reports
+   */
+  public List<String> getSuccessfulReports() {
+    return this.successfulReports;
   }
 
   // private helper
