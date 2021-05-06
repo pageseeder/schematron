@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/pageseeder/maven/schematron/images/download.svg) ](https://bintray.com/pageseeder/maven/schematron/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/org.pageseeder.schematron/pso-schematron.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22org.pageseeder.schematron%22%20AND%20a:%22pso-schematron%22)
 
 # Schematron Validator
 
