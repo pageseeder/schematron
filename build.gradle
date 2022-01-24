@@ -23,10 +23,23 @@ repositories {
   }
 }
 
+configurations {
+  include
+}
+
 dependencies {
 
-  testImplementation('junit:junit:4.12')
+  include('name.dmaus.schxslt:schxslt:1.8.6')
 
-  testRuntimeOnly('net.sf.saxon:Saxon-HE:9.6.0-6')
+  testImplementation('junit:junit:4.13.2')
 
+  testRuntimeOnly('net.sf.saxon:Saxon-HE:9.9.1-6')
+
+}
+
+task includeTemplates(type: Copy) {
+  from { configurations.include.collect { zipTree(it) } }
+  exclude '/xproc/**'
+  exclude '/META-INF/**'
+  into 'src/main/resources/org/pageseeder/schematron/'
 }

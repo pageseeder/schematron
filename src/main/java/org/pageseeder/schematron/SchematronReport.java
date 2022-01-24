@@ -65,7 +65,7 @@ public final class SchematronReport {
   /**
    * Maps XML files to results.
    */
-  private final Map<String, SchematronResult> results = new HashMap<String, SchematronResult>();
+  private final Map<String, SchematronResult> results = new HashMap<>();
 
   /**
    * Constructor of Schematron Report
@@ -133,8 +133,6 @@ public final class SchematronReport {
 
   /**
    * Print the SVRL result onto the console log.
-   *
-   * @param task The task which provides the Log to use.
    */
   public void printLog(PrintStream out) {
     for (SchematronResult result : this.results.values()) {

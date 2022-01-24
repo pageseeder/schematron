@@ -167,8 +167,6 @@ public final class SchematronResult {
 
   /**
    * Print both failed assertion and successful report message to the console.
-   *
-   * @param task SchematronTask object for message logging
    */
   public void printAllMessage(PrintStream out) {
     if (this.failedAssertions.size() > 0 || this.successfulReports.size() > 0) {

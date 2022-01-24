@@ -53,8 +53,6 @@ import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamSource;
 
-import org.pageseeder.schematron.ValidatorFactory.QueryBinding;
-
 /**
  * An Ant task that allows user to validate a fileset of XML files with a Schematron schema.
  *
@@ -85,7 +83,7 @@ public final class Schematron {
   /**
    * Specify the query language binding of schematron to use "xslt1" "xslt2" "auto"
    */
-  private QueryBinding queryLanguageBinding = QueryBinding.AUTO;
+  private QueryBinding queryLanguageBinding = QueryBinding.DEFAULT;
 
   /**
    * Specify the format  (metastylesheet), "svrl" (default), "message" or "terminate"
@@ -308,8 +306,6 @@ public final class Schematron {
    *
    * Note: 'Locate' means that the value and fileset from Ant may need
    * to be parsed/processed so that each file can be found an checked prior to processing.
-   *
-   * @throws BuildException Should an error occur
    */
   public void execute() throws SchematronException {
     // the number of file processed
@@ -363,12 +359,10 @@ public final class Schematron {
    * Initialise the validator.
    *
    * Loads the parser class, and set features if necessary
-   *
-   * @throws BuildException Should an error occur whilst initialising the Schematron validator.
    */
   private void initValidator() throws SchematronException {
     try {
-      ValidatorFactory factory = new ValidatorFactory(this.queryLanguageBinding, this.format);
+      ValidatorFactory factory = new ValidatorFactory();
       factory.setDebugMode(this.debugMode);
       factory.setErrorListener(new Listener());
       this.options.configure(factory);
