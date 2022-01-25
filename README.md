@@ -6,10 +6,18 @@
 
 This library provides a simple Schematron validator in Java.
 
-This project was initially forked from Google Code <https://code.google.com/p/schematron/> and 
-retains large portions of the code licenced under MIT and developed by Rick Jelliffe and others.
+This project was initially forked from Google Code <https://code.google.com/p/schematron/> licenced 
+under MIT and developed by Rick Jelliffe and others.
 
-We simply wanted a different and simpler Java API.
+Most of the API has been refactored to provide a simple Java API.
+
+## SchXslt
+
+This library includes the XSLT-based Schematron processor from SchXslt
+  https://github.com/schxslt/schxslt
+
+SchXslt is copyright (c) 2018–2021 by David Maus <dmaus@dmaus.name> and 
+released under the terms of the MIT license.
 
 ## Dependencies
 
