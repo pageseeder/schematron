@@ -37,7 +37,6 @@ public final class ValidatorFactoryTest {
   @Test
   public void testCompileSplitXslt2() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setDebugMode(true);
     File schema = new File("src/test/resources/sch/split-xslt2.sch");
     factory.newValidator(schema);
   }
