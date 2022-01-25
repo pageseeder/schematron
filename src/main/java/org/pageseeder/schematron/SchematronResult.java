@@ -75,12 +75,12 @@ public final class SchematronResult {
   /**
    * An ArrayList to store (String) message of failed assertion found.
    */
-  private final List<String> failedAssertions = new ArrayList<String>();
+  private final List<String> failedAssertions = new ArrayList<>();
 
   /**
    * An ArrayList to store (String) message of successful report found.
    */
-  private final List<String> successfulReports = new ArrayList<String>();
+  private final List<String> successfulReports = new ArrayList<>();
 
   /**
    * Constructor of SchematronResult that accept the source file name (or systemID)

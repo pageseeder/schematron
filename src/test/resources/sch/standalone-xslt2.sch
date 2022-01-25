@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
 
-  <sch:title>Standlone schema for testing</sch:title>
+  <sch:title>Standalone schema for testing</sch:title>
 
   <sch:pattern>
     <sch:title>Elements</sch:title>

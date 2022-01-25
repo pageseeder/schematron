@@ -128,7 +128,7 @@ public final class Schematron {
   /**
    * A collection of options to pass to the factory.
    */
-  private SchematronOptions options = new SchematronOptions();
+  private CompileOptions options = new CompileOptions();
 
   /** name for XSL parameter containing the filename */
   private String archiveNameParameter = null;
@@ -395,8 +395,8 @@ public final class Schematron {
   private SchematronResult doValidate(File afile) throws SchematronException {
     System.out.println("Validating " + afile.getName() + "... ");
     StreamSource xml = new StreamSource(afile);
-    SchematronResult result = this.validator.validate(xml, this.fileNameParameter, this.fileDirParameter,
-                  this.archiveNameParameter, this.archiveDirParameter, this.encoding);
+    OutputOptions options = OutputOptions.defaults().encoding(this.encoding);
+    SchematronResult result = this.validator.validate(xml, options);
 
     // Usual return
     return result;

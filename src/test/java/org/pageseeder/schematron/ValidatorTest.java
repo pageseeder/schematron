@@ -6,7 +6,6 @@ import java.io.File;
 
 public class ValidatorTest {
 
-
   @Test
   public void testValidate0() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
@@ -43,9 +42,9 @@ public class ValidatorTest {
   @Test
   public void testValidateNoMetadata2() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    SchematronOptions options = new SchematronOptions();
+    CompileOptions options = new CompileOptions();
     options.setMetadata(false);
-//    factory.setParameter("schxslt.compile.metadata", Boolean.FALSE);
+    factory.setParameter("schxslt.compile.metadata", Boolean.FALSE);
     options.configure(factory);
     File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
     Validator validator = factory.newValidator(schema);
@@ -55,5 +54,48 @@ public class ValidatorTest {
     System.out.println(result.getSVRLAsString());
   }
 
+  @Test
+  public void testValidateSplitNoMetadata2() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    CompileOptions options = new CompileOptions();
+    options.setMetadata(false);
+    factory.setParameter("schxslt.compile.metadata", Boolean.FALSE);
+    options.configure(factory);
+    File schema = new File("src/test/resources/sch/split-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult result = validator.validate(sample);
+    System.out.println(result.isValid());
+    System.out.println(result.getSVRLAsString());
+  }
+
+  @Test
+  public void testValidateOptions() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    CompileOptions options = new CompileOptions();
+    options.setMetadata(false);
+    options.configure(factory);
+    File schema = new File("src/test/resources/sch/split-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult result = validator.validate(sample, OutputOptions.defaults().indent(true));
+    System.out.println(result.isValid());
+    System.out.println(result.getSVRLAsString());
+  }
+
+  @Test
+  public void testValidatePhase() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    CompileOptions options = new CompileOptions();
+    options.setPhase("authoring");
+    options.setMetadata(false);
+    options.configure(factory);
+    File schema = new File("src/test/resources/sch/standalone-phase.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult result = validator.validate(sample);
+    System.out.println(result.isValid());
+    System.out.println(result.getSVRLAsString());
+  }
 
 }

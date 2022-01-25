@@ -14,34 +14,38 @@ public final class ValidatorFactoryTest {
   }
 
   @Test
-  public void testCompileXslt1() throws SchematronException {
+  public void testCompileStandaloneDefault() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    File schema = new File("src/test/resources/sch/standalone-xslt1.sch");
-    if (!schema.exists()) {
-      System.out.println(schema.getAbsolutePath());
-      System.out.println(schema.exists());
-    }
+    File schema = new File("src/test/resources/sch/standalone-default.sch");
     factory.newValidator(schema);
   }
 
   @Test
-  public void testCompileXslt2() throws SchematronException {
+  public void testCompileStandaloneXslt1() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/standalone-xslt1.sch");
+    factory.newValidator(schema);
+  }
+
+  @Test
+  public void testCompileStandaloneXslt2() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
     File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
     factory.newValidator(schema);
   }
 
   @Test
-  public void testCompileXslt3() throws SchematronException {
+  public void testCompileSplitXslt2() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    File schema = new File("src/test/resources/sch/standalone-xslt3.sch");
+    factory.setDebugMode(true);
+    File schema = new File("src/test/resources/sch/split-xslt2.sch");
     factory.newValidator(schema);
   }
 
   @Test
-  public void testCompileAuto() throws SchematronException {
+  public void testCompileStandaloneXslt3() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    File schema = new File("src/test/resources/sch/standalone-default.sch");
+    File schema = new File("src/test/resources/sch/standalone-xslt3.sch");
     factory.newValidator(schema);
   }
 
@@ -58,4 +62,12 @@ public final class ValidatorFactoryTest {
     File schema = new File("src/test/resources/sch/standalone-malformed.sch");
     factory.newValidator(schema);
   }
+
+  @Test(expected = SchematronException.class)
+  public void testCompileUnknownBinding() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/standalone-unknown-binding.sch");
+    factory.newValidator(schema);
+  }
+
 }

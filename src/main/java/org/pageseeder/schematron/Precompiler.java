@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Precompiler for a specific query binding.
  *
- * <p>The precompiler is thread-safe and generate a set of templates independently of the template options.
+ * <p>The precompiler is thread-safe and generate a set of templates independently
+ * of the template options.
  *
  * @author Christophe Lauret
  * @version 2.0
@@ -74,7 +74,7 @@ final class Precompiler {
   }
 
   /**
-   * Generate a compiler using the
+   * Generate a compiler using the specified values
    *
    * @param options
    * @param listener

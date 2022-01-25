@@ -27,7 +27,7 @@ package org.pageseeder.schematron;
 public final class SchematronException extends Exception {
 
   /** As per requirements. */
-  private static final long serialVersionUID = 2321079962121852344L;
+  private static final long serialVersionUID = 7541115878853544269L;
 
   /**
    * Creates a new Schematron exception.

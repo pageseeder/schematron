@@ -82,6 +82,8 @@ public final class SVRLHandler extends DefaultHandler {
    */
   private static final String LOCATION_ATT = "location";
 
+  private static final String SVRL_NAMESPACE = "http://purl.oclc.org/dsdl/svrl";
+
   // Class attributes
   // ----------------------------------------------------------------------------------------------
 

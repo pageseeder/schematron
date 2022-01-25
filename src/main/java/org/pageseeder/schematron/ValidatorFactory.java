@@ -200,10 +200,11 @@ public final class ValidatorFactory {
     // TODO Do we still need to do this?
     // this._factory.setURIResolver(new XSLTURIFinder());
 
-    Precompiler pipeline = Precompiler.create(this._factory, binding);
+    Precompiler precompiler = Precompiler.create(this._factory, binding);
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
-    Compiler compiler = pipeline.prepare(this._listener, this._options);
+
+    Compiler compiler = precompiler.prepare(this._listener, this._options);
     Document stylesheet = compiler.compile(schemaSource);
     stylesheet.setDocumentURI(systemId);
 
@@ -253,6 +254,10 @@ public final class ValidatorFactory {
 
   private QueryBinding getQueryBinding(Document schematron) throws SchematronException {
     String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
+    if ("".equals(queryBinding)) {
+      queryBinding = "xslt2";
+      schematron.getDocumentElement().setAttribute("queryBinding", queryBinding);
+    }
     return QueryBinding.forValue(queryBinding);
   }
 

@@ -16,7 +16,10 @@
 package org.pageseeder.schematron;
 
 /**
- * Enum for supported query binding attributes
+ * Enum for supported query binding attributes.
+ *
+ * <p>Note: this is used by the precompiler to determine which set of XSLT
+ * templates to use for compiling the validator.
  *
  * @author Christophe Lauret
  * @version 2.0
@@ -44,7 +47,14 @@ public enum QueryBinding {
    */
   XSLT3("xslt3", "2.0");
 
+  /**
+   * Value of `queryBinding` attribute.
+   */
   private final String _value;
+
+  /**
+   * Corresponding XSLT version to use
+   */
   private final String _version;
 
   QueryBinding(String value, String version) {
@@ -56,6 +66,15 @@ public enum QueryBinding {
     return this._version;
   }
 
+  /**
+   * Return the query binding based on the attribute value.
+   *
+   * @param value attribute value of `sch:schema`
+   *
+   * @return Corresponding query binding
+   *
+   * @throws SchematronException If the query binding is not supported.
+   */
   public static QueryBinding forValue(String value) throws SchematronException {
     for (QueryBinding binding : values()) {
       if (binding._value.equals(value)) return binding;

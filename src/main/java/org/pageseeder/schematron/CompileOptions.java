@@ -19,23 +19,27 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ *
+ *
  * @author Christophe Lauret
  * @version 2.0
  * @since 1.0
  */
-public class SchematronOptions {
+public class CompileOptions {
 
   /**
    * Specifies a Schematron phase to use.
    */
   private String phase;
 
+  public String defaultQueryBinding = "xslt";
+
   private final Map<String, Object> options = new HashMap<>();
 
   /**
    *
    */
-  public SchematronOptions() {
+  public CompileOptions() {
   }
 
   /**
@@ -62,8 +66,13 @@ public class SchematronOptions {
     this.options.put("schxslt.svrl.compact", yes);
   }
 
-  /** Encoding for output */
-  private String encoding = null;
+  public void setDefaultQueryBinding(String value) {
+    this.defaultQueryBinding = value;
+  }
+
+  public String getDefaultQueryBinding() {
+    return defaultQueryBinding;
+  }
 
   public void configure(ValidatorFactory factory) {
 
