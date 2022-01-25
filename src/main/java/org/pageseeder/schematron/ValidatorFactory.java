@@ -47,8 +47,6 @@ package org.pageseeder.schematron;
 import org.w3c.dom.Document;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
@@ -88,18 +86,15 @@ public final class ValidatorFactory {
   private ErrorListener _listener = this._factory.getErrorListener();
 
   /**
-   * The Schematron options to be sent to the preprocessor.
-   */
-  private final Map<String, Object> _options = new HashMap<>();
-
-  /**
    * If set to <code>true</code> (default is <code>false</code>), then preprocessing stylesheet will be outputted to
    * file debug.xslt
    */
   private boolean debugMode = false;
 
-  // constructors
-  // -----------------------------------------------------------------------------------
+  /**
+   * Default compile options for this factory.
+   */
+  private CompileOptions options = CompileOptions.defaults();
 
   /**
    * Constructs a new factory.
@@ -107,8 +102,13 @@ public final class ValidatorFactory {
   public ValidatorFactory() {
   }
 
-  // public methods
-  // ----------------------------------------------------------------------------------
+  public void setOptions(CompileOptions options) {
+    this.options = options != null ? options : CompileOptions.defaults();
+  }
+
+  public CompileOptions getOptions() {
+    return this.options;
+  }
 
   /**
    * Set the error event listener for the ValidatorFactory, which is used for the processing of the
@@ -130,29 +130,29 @@ public final class ValidatorFactory {
   public ErrorListener getErrorListener() {
     return this._listener;
   }
-
-  /**
-   * Add a parameter to be sent to the preprocessor.
-   *
-   * @see javax.xml.transform.Transformer#setParameter(String, Object)
-   *
-   * @param name  The name of the parameter.
-   * @param value The value object.
-   */
-  public void setParameter(String name, Object value) {
-    this._options.put(name, value);
-  }
-
-  /**
-   * Returns the parameters value for the specified name.
-   *
-   * @param name The name of the parameter.
-   *
-   * @return The parameter value or <code>null</code> if the parameter was not specified.
-   */
-  public Object getParameter(String name) {
-    return this._options.get(name);
-  }
+//
+//  /**
+//   * Add a parameter to be sent to the preprocessor.
+//   *
+//   * @see javax.xml.transform.Transformer#setParameter(String, Object)
+//   *
+//   * @param name  The name of the parameter.
+//   * @param value The value object.
+//   */
+//  public void setParameter(String name, Object value) {
+//    this._options.put(name, value);
+//  }
+//
+//  /**
+//   * Returns the parameters value for the specified name.
+//   *
+//   * @param name The name of the parameter.
+//   *
+//   * @return The parameter value or <code>null</code> if the parameter was not specified.
+//   */
+//  public Object getParameter(String name) {
+//    return this._options.get(name);
+//  }
 
   /**
    * If debug mode is set to true, then preprocessing stylesheet will be outputted in file
@@ -189,13 +189,42 @@ public final class ValidatorFactory {
    * @param schema The Schematron schema to use.
    *
    * @return A Validator instance for the specified schema.
+   */
+  public Validator newValidator(File schema, String phase) throws SchematronException {
+    if (!schema.exists())
+      throw new SchematronException("Unable to find schema", new FileNotFoundException(schema.getPath()));
+    StreamSource source = new StreamSource(schema);
+    return newValidator(source, phase);
+  }
+
+
+  /**
+   * Process the specified schema into a Validator object.
+   *
+   * @param schema The Schematron schema to use.
+   *
+   * @return A Validator instance for the specified schema.
    *
    * @throws SchematronException Will wrap any exception occurring while attempting to instantiate a validator.
    */
   public Validator newValidator(Source schema) throws SchematronException {
+    return newValidator(schema, null);
+  }
+
+  /**
+   * Process the specified schema into a Validator object.
+   *
+   * @param schema The Schematron schema to use.
+   * @param phase  The phase for this schema.
+   *
+   * @return A Validator instance for the specified schema.
+   *
+   * @throws SchematronException Will wrap any exception occurring while attempting to instantiate a validator.
+   */
+  public Validator newValidator(Source schema, String phase) throws SchematronException {
     Document schematron = this.loadSchema(schema);
     String systemId = schematron.getDocumentURI();
-    QueryBinding binding = getQueryBinding(schematron);
+    QueryBinding binding = getQueryBinding(schematron, this.options);
 
     // TODO Do we still need to do this?
     // this._factory.setURIResolver(new XSLTURIFinder());
@@ -204,7 +233,7 @@ public final class ValidatorFactory {
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
 
-    Compiler compiler = precompiler.prepare(this._listener, this._options);
+    Compiler compiler = precompiler.prepare(this._listener, this.options.toParameters(phase));
     Document stylesheet = compiler.compile(schemaSource);
     stylesheet.setDocumentURI(systemId);
 
@@ -252,10 +281,10 @@ public final class ValidatorFactory {
     }
   }
 
-  private QueryBinding getQueryBinding(Document schematron) throws SchematronException {
+  private QueryBinding getQueryBinding(Document schematron, CompileOptions options) throws SchematronException {
     String queryBinding = schematron.getDocumentElement().getAttribute("queryBinding").toLowerCase();
     if ("".equals(queryBinding)) {
-      queryBinding = "xslt2";
+      queryBinding = options.defaultQueryBinding();
       schematron.getDocumentElement().setAttribute("queryBinding", queryBinding);
     }
     return QueryBinding.forValue(queryBinding);

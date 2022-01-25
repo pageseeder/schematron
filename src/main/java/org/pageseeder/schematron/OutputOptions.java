@@ -41,6 +41,11 @@ public final class OutputOptions {
     this.omitXmlDeclaration = omitXmlDeclaration;
   }
 
+  /**
+   * The default output options use UTF-8 encoding, do not indent the results and omit the XML declaration.
+   *
+   * @return The default output options
+   */
   public static OutputOptions defaults() {
     return DEFAULT;
   }

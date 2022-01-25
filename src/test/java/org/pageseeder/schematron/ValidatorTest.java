@@ -40,12 +40,9 @@ public class ValidatorTest {
   }
 
   @Test
-  public void testValidateNoMetadata2() throws SchematronException {
+  public void testValidateWithMetadata() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    CompileOptions options = new CompileOptions();
-    options.setMetadata(false);
-    factory.setParameter("schxslt.compile.metadata", Boolean.FALSE);
-    options.configure(factory);
+    factory.setOptions(CompileOptions.defaults().metadata(true));
     File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
@@ -57,10 +54,7 @@ public class ValidatorTest {
   @Test
   public void testValidateSplitNoMetadata2() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    CompileOptions options = new CompileOptions();
-    options.setMetadata(false);
-    factory.setParameter("schxslt.compile.metadata", Boolean.FALSE);
-    options.configure(factory);
+    factory.setOptions(CompileOptions.defaults().metadata(false));
     File schema = new File("src/test/resources/sch/split-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
@@ -72,9 +66,7 @@ public class ValidatorTest {
   @Test
   public void testValidateOptions() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    CompileOptions options = new CompileOptions();
-    options.setMetadata(false);
-    options.configure(factory);
+    factory.setOptions(CompileOptions.defaults().metadata(true));
     File schema = new File("src/test/resources/sch/split-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
@@ -86,12 +78,9 @@ public class ValidatorTest {
   @Test
   public void testValidatePhase() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    CompileOptions options = new CompileOptions();
-    options.setPhase("authoring");
-    options.setMetadata(false);
-    options.configure(factory);
+    factory.setOptions(CompileOptions.defaults().metadata(false));
     File schema = new File("src/test/resources/sch/standalone-phase.sch");
-    Validator validator = factory.newValidator(schema);
+    Validator validator = factory.newValidator(schema,"authoring");
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.validate(sample);
     System.out.println(result.isValid());

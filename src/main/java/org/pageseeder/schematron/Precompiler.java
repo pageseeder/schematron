@@ -43,7 +43,7 @@ final class Precompiler {
   /**
    * XSLT implementation version
    */
-  private final String _version;
+  private final String _xsltVersion;
 
   /**
    * Templates for the pipeline.
@@ -51,8 +51,15 @@ final class Precompiler {
   private final List<Templates> _pipeline;
 
   private Precompiler(String version, List<Templates> templates) {
-    this._version = version;
+    this._xsltVersion = version;
     this._pipeline = templates;
+  }
+
+  /**
+   * @return Which version of XSLT templates are used
+   */
+  public String getXsltVersion() {
+    return this._xsltVersion;
   }
 
   public static Precompiler create(TransformerFactory transformerFactory, QueryBinding binding) throws SchematronException {

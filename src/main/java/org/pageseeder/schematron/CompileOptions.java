@@ -19,72 +19,90 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Available options for compiling Schematron.
  *
+ * <p>This class uses a fluent style.
  *
  * @author Christophe Lauret
  * @version 2.0
- * @since 1.0
+ * @since 2.0
  */
-public class CompileOptions {
+public final class CompileOptions {
 
-  /**
-   * Specifies a Schematron phase to use.
-   */
-  private String phase;
+  private static final CompileOptions DEFAULT = new CompileOptions("xslt", false, false, false);
 
-  public String defaultQueryBinding = "xslt";
+  private final String defaultQueryBinding;
+  private final boolean streamable;
+  private final boolean metadata;
+  private final boolean compact;
 
-  private final Map<String, Object> options = new HashMap<>();
-
-  /**
-   *
-   */
-  public CompileOptions() {
+  private CompileOptions(String defaultQueryBinding, boolean metadata, boolean streamable, boolean compact) {
+    this.defaultQueryBinding = defaultQueryBinding;
+    this.metadata = metadata;
+    this.streamable = streamable;
+    this.compact = compact;
   }
 
   /**
-   * Specifies the phase Schematron should use.
-   *
-   * <p>If this parameter is set the schematron processor will match this parameter value with
-   * the 'id' attribute of a phase element.
-   *
-   * @param phase The ID of the phase to use.
+   * @return the default compile options for Schematron.
    */
-  public void setPhase(String phase) {
-    this.phase = phase;
+  public static CompileOptions defaults() {
+    return DEFAULT;
   }
 
-  public void setStreamable(boolean yes) {
-    this.options.put("schxslt.compile.streamable", yes);
+  public CompileOptions defaultQueryBinding(String defaultQueryBinding) {
+    return new CompileOptions(defaultQueryBinding, this.metadata, this.streamable, this.compact);
   }
 
-  public void setMetadata(boolean yes) {
-    this.options.put("schxslt.compile.metadata", yes);
+  public CompileOptions metadata(boolean metadata) {
+    return new CompileOptions(this.defaultQueryBinding, metadata, this.streamable, this.compact);
   }
 
-  public void setCompact(boolean yes) {
-    this.options.put("schxslt.svrl.compact", yes);
+  public CompileOptions streamable(boolean streamable) {
+    return new CompileOptions(this.defaultQueryBinding, this.metadata, streamable, this.compact);
   }
 
-  public void setDefaultQueryBinding(String value) {
-    this.defaultQueryBinding = value;
+  public CompileOptions compact(boolean compact) {
+    return new CompileOptions(this.defaultQueryBinding, this.metadata, this.streamable, compact);
   }
 
-  public String getDefaultQueryBinding() {
-    return defaultQueryBinding;
+  public String defaultQueryBinding() {
+    return this.defaultQueryBinding;
   }
 
-  public void configure(ValidatorFactory factory) {
+  public boolean isCompact() {
+    return this.compact;
+  }
 
+  public boolean hasMetadata() {
+    return this.metadata;
+  }
+
+  public boolean isStreamable() {
+    return this.streamable;
+  }
+
+  /**
+   * @return the parameters sent to the preprocessors which are equivalent to these options.
+   */
+  public Map<String, Object> toParameters() {
+    return toParameters(null);
+  }
+
+  /**
+   * @param phase The phase to use for validation
+   * @return the parameters sent to the preprocessors which are equivalent to these options.
+   */
+  public Map<String, Object> toParameters(String phase) {
+    Map<String, Object> parameters = new HashMap<>();
     // set the phase if specified
-    if (this.phase != null) {
-      factory.setParameter("phase", this.phase);
+    if (phase != null) {
+      parameters.put("phase", phase);
     }
-
-    // Set any other option
-    for (Map.Entry<String, Object> option: this.options.entrySet()) {
-      factory.setParameter(option.getKey(), option.getValue());
-    }
-
+    parameters.put("schxslt.compile.streamable", this.streamable);
+    parameters.put("schxslt.compile.metadata", this.metadata);
+    parameters.put("schxslt.svrl.compact", this.compact);
+    return parameters;
   }
+
 }

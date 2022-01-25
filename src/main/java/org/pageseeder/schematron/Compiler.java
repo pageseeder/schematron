@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Schematron compiler.
  *
- * <p>Compilers are not thread-safe, but may be reused/</p>
+ * <p>Compilers are not thread-safe, but may be reused if the same compile options are used.</p>
  *
  * @author Christophe Lauret
  * @version 2.0
