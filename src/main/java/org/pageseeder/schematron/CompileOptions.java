@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Available options for compiling Schematron.
  *
- * <p>This class uses a fluent style.
+ * <p>This class uses a fluent style and instances are immutable.
  *
  * @author Christophe Lauret
  * @version 2.0
@@ -108,4 +108,35 @@ public final class CompileOptions {
     return parameters;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    CompileOptions that = (CompileOptions) o;
+
+    if (streamable != that.streamable) return false;
+    if (metadata != that.metadata) return false;
+    if (compact != that.compact) return false;
+    return defaultQueryBinding != null ? defaultQueryBinding.equals(that.defaultQueryBinding) : that.defaultQueryBinding == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = defaultQueryBinding != null ? defaultQueryBinding.hashCode() : 0;
+    result = 31 * result + (streamable ? 1 : 0);
+    result = 31 * result + (metadata ? 1 : 0);
+    result = 31 * result + (compact ? 1 : 0);
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "CompileOptions{" +
+        "defaultQueryBinding='" + defaultQueryBinding + '\'' +
+        ", streamable=" + streamable +
+        ", metadata=" + metadata +
+        ", compact=" + compact +
+        '}';
+  }
 }

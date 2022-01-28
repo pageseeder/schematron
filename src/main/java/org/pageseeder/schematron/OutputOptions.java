@@ -18,7 +18,7 @@ package org.pageseeder.schematron;
 /**
  * Output options for the validator.
  *
- * <p>This class uses a fluent style.
+ * <p>This class uses a fluent style and instances are immutable.
  *
  * @author Christophe Lauret
  *
@@ -27,7 +27,7 @@ package org.pageseeder.schematron;
  */
 public final class OutputOptions {
 
-  private static final OutputOptions DEFAULT =  new OutputOptions("utf-8", false, true);
+  private static final OutputOptions DEFAULT =  new OutputOptions("utf-8", false, true, false);
 
   private final String encoding;
 
@@ -35,10 +35,13 @@ public final class OutputOptions {
 
   private final boolean omitXmlDeclaration;
 
-  private OutputOptions(String encoding, boolean indent, boolean omitXmlDeclaration) {
+  private final boolean usePrefixInLocation;
+
+  private OutputOptions(String encoding, boolean indent, boolean omitXmlDeclaration, boolean usePrefixInLocation) {
     this.encoding = encoding;
     this.indent = indent;
     this.omitXmlDeclaration = omitXmlDeclaration;
+    this.usePrefixInLocation = usePrefixInLocation;
   }
 
   /**
@@ -51,15 +54,19 @@ public final class OutputOptions {
   }
 
   public OutputOptions encoding(String encoding) {
-    return new OutputOptions(encoding, this.indent, this.omitXmlDeclaration);
+    return new OutputOptions(encoding, this.indent, this.omitXmlDeclaration, this.usePrefixInLocation);
   }
 
   public OutputOptions indent(boolean indent) {
-    return new OutputOptions(this.encoding, indent, this.omitXmlDeclaration);
+    return new OutputOptions(this.encoding, indent, this.omitXmlDeclaration, this.usePrefixInLocation);
   }
 
   public OutputOptions omitXmlDeclaration(boolean omitXmlDeclaration) {
-    return new OutputOptions(this.encoding, this.indent, omitXmlDeclaration);
+    return new OutputOptions(this.encoding, this.indent, omitXmlDeclaration, this.usePrefixInLocation);
+  }
+
+  public OutputOptions usePrefixInLocation(boolean usePrefixInLocation) {
+    return new OutputOptions(this.encoding, this.indent, this.omitXmlDeclaration, usePrefixInLocation);
   }
 
   public String encoding() {
@@ -72,5 +79,39 @@ public final class OutputOptions {
 
   public boolean isOmitXmlDeclaration() {
     return this.omitXmlDeclaration;
+  }
+
+  public boolean usePrefixInLocation() {
+    return this.usePrefixInLocation;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    OutputOptions that = (OutputOptions) o;
+    if (indent != that.indent) return false;
+    if (omitXmlDeclaration != that.omitXmlDeclaration) return false;
+    if (usePrefixInLocation != that.usePrefixInLocation) return false;
+    return encoding.equals(that.encoding);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = encoding.hashCode();
+    result = 31 * result + (indent ? 1 : 0);
+    result = 31 * result + (omitXmlDeclaration ? 1 : 0);
+    result = 31 * result + (usePrefixInLocation ? 1 : 0);
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    return "OutputOptions{" +
+        "encoding='" + encoding + '\'' +
+        ", indent=" + indent +
+        ", omitXmlDeclaration=" + omitXmlDeclaration +
+        ", usePrefixInLocation=" + usePrefixInLocation +
+        '}';
   }
 }
