@@ -97,6 +97,12 @@ public final class ValidatorFactory {
   private CompileOptions options = CompileOptions.defaults();
 
   /**
+   * We keep a shared copy of precompilers (they are thread-safe)
+   */
+  private static volatile Precompiler precompiler1 = null;
+  private static volatile Precompiler precompiler2 = null;
+
+  /**
    * Constructs a new factory.
    */
   public ValidatorFactory() {
@@ -228,8 +234,7 @@ public final class ValidatorFactory {
 
     // TODO Do we still need to do this?
     // this._factory.setURIResolver(new XSLTURIFinder());
-
-    Precompiler precompiler = Precompiler.create(this._factory, binding);
+    Precompiler precompiler = getPrecompiler(binding);
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
 
@@ -290,4 +295,12 @@ public final class ValidatorFactory {
     return QueryBinding.forValue(queryBinding);
   }
 
+  private Precompiler getPrecompiler(QueryBinding binding) throws SchematronException {
+    if ("1.0".equals(binding.version()) && precompiler1 != null) return precompiler1;
+    if ("2.0".equals(binding.version()) && precompiler2 != null) return precompiler2;
+    Precompiler precompiler = Precompiler.create(this._factory, binding);
+    if ("1.0".equals(binding.version())) precompiler1 = precompiler;
+    else if ("2.0".equals(binding.version())) precompiler2 = precompiler;
+    return precompiler;
+  }
 }

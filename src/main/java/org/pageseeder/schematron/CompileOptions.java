@@ -90,6 +90,9 @@ public final class CompileOptions {
   }
 
   /**
+   * Returns a new mutable parameter map containing the parameters corresponding to these
+   * options.
+   *
    * @param phase The phase to use for validation
    * @return the parameters sent to the preprocessors which are equivalent to these options.
    */
