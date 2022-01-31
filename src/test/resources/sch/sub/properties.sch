@@ -4,6 +4,6 @@
 -->
 <sch:properties xmlns:sch="http://purl.oclc.org/dsdl/schematron">
 
-  <sch:property id="fragment-id"><sch:value-of select="ancestor-or-self::fragment/@id"/></sch:property>
+  <sch:property id="book-id"><sch:value-of select="ancestor-or-self::book/@id"/></sch:property>
 
 </sch:properties>

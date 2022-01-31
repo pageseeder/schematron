@@ -15,9 +15,12 @@
  */
 package org.pageseeder.schematron;
 
+import org.pageseeder.schematron.svrl.SVRLStreamWriter;
+
 import java.io.File;
 import java.io.StringWriter;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -25,7 +28,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
 /**
@@ -134,13 +137,22 @@ public final class Validator {
 
     // Generate the result
     StringWriter writer = new StringWriter();
+    SchematronResult result = new SchematronResult(xml.getSystemId());
+
     try {
-      transformer.transform(xml, new StreamResult(writer));
+      // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
+      SVRLStreamWriter svrl = new SVRLStreamWriter(writer, options);
+      transformer.transform(xml, new StAXResult(svrl));
+      result.setSVRL(writer.toString(), svrl.getAsserts(), svrl.getReports());
+//      transformer.transform(xml, new StreamResult(writer));
+
     } catch (TransformerException ex) {
       throw new SchematronException("Unable to process file with schematron", ex);
+    } catch (XMLStreamException ex) {
+      throw new SchematronException("Unable to process SVRL results", ex);
     }
-    SchematronResult result = new SchematronResult(xml.getSystemId());
-    result.setSVRL(writer.toString());
+
+
     return result;
   }
 
@@ -164,5 +176,6 @@ public final class Validator {
     }
     return transformer;
   }
+
 
 }

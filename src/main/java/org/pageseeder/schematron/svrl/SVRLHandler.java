@@ -42,7 +42,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.pageseeder.schematron;
+package org.pageseeder.schematron.svrl;
 
 import java.util.List;
 
@@ -60,6 +60,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @version 11 March 2013
  */
+@Deprecated
 public final class SVRLHandler extends DefaultHandler {
 
   /**

@@ -8,7 +8,7 @@
 
     <sch:rule context="/">
 
-      <sch:assert test="*">Document element</sch:assert>
+      <sch:report test="*">Document element <sch:name /></sch:report>
 
     </sch:rule>
 

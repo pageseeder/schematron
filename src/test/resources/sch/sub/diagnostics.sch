@@ -4,6 +4,6 @@
 -->
 <sch:diagnostics xmlns:sch="http://purl.oclc.org/dsdl/schematron">
 
-  <sch:diagnostic id="fragment"><sch:value-of select="ancestor-or-self::fragment/@id"/></sch:diagnostic>
+  <sch:diagnostic id="book">In <sch:value-of select="ancestor-or-self::book/title"/> by <sch:value-of select="ancestor-or-self::book/author"/></sch:diagnostic>
 
 </sch:diagnostics>

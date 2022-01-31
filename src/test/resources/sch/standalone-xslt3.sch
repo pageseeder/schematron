@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
-<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2"
+xmlns="">
 
   <sch:title>Standalone schema for testing</sch:title>
 
   <sch:pattern>
     <sch:title>Elements</sch:title>
 
-    <sch:rule context="/">
+    <sch:rule context="/*">
 
-      <sch:assert test="*">Document element</sch:assert>
+      <sch:report test=".">Document element <sch:name /></sch:report>
 
     </sch:rule>
 
