@@ -51,13 +51,6 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   private List<String> reports = new ArrayList<>();
 
-  private SchematronOutput output;
-  private Namespace currentNamespace;
-  private ActivePattern currentActivePattern;
-  private FiredRule currentFiredRule;
-  private AssertOrReport currentAssertOrReport;
-  private HumanText currentHumanText;
-
   public SVRLStreamWriter(Writer out) throws XMLStreamException {
     this(out, OutputOptions.defaults());
   }

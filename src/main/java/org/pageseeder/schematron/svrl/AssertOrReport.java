@@ -105,7 +105,7 @@ public final class AssertOrReport implements XMLStreamable {
     this.text = text;
   }
 
-  void addPropertyReference(DiagnosticReference diagnosticReference) {
+  void addDiagnosticReference(DiagnosticReference diagnosticReference) {
     this.diagnosticReferences.add(diagnosticReference);
   }
 

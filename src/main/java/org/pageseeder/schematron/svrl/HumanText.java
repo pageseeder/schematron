@@ -2,6 +2,10 @@ package org.pageseeder.schematron.svrl;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <pre>
@@ -54,8 +58,7 @@ public class HumanText implements XMLStreamable {
   private String see;
   private String icon;
   private String fpi;
-  private String richText;
-  private String plainText;
+  private List<XMLEvent> richText = new ArrayList<>();
 
   public String getSpace() {
     return space;
@@ -77,13 +80,13 @@ public class HumanText implements XMLStreamable {
     return fpi;
   }
 
-  public String getRichText() {
-    return richText;
-  }
-
-  public String getPlainText() {
-    return plainText;
-  }
+//  public String getRichText() {
+//    return richText;
+//  }
+//
+//  public String getPlainText() {
+//    return plainText;
+//  }
 
   void setSpace(String space) {
     this.space = space;
@@ -105,12 +108,16 @@ public class HumanText implements XMLStreamable {
     this.fpi = fpi;
   }
 
-  void setRichText(String richText) {
-    this.richText = richText;
-  }
+//  void setRichText(String richText) {
+//    this.richText = richText;
+//  }
+//
+//  void setPlainText(String plainText) {
+//    this.plainText = plainText;
+//  }
 
-  void setPlainText(String plainText) {
-    this.plainText = plainText;
+  void addContent(XMLEvent event) {
+    this.richText.add(event);
   }
 
   @Override
@@ -121,7 +128,7 @@ public class HumanText implements XMLStreamable {
     if (this.see != null) xml.writeAttribute("see", this.see);
     if (this.icon != null) xml.writeAttribute("icon", this.icon);
     if (this.fpi != null) xml.writeAttribute("fpi", this.fpi);
-    if (this.richText != null) {
+    for (XMLEvent event : this.richText) {
       // TODO
     }
     xml.writeEndElement();

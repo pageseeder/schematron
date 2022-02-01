@@ -52,8 +52,28 @@ public class FiredRule implements XMLStreamable {
     return assertsAndReports;
   }
 
-  public void AddAssertOrReport(AssertOrReport assertOrReport) {
+  void addAssertOrReport(AssertOrReport assertOrReport) {
     this.assertsAndReports.add(assertOrReport);
+  }
+
+  void setId(String id) {
+    this.id = id;
+  }
+
+  void setName(String name) {
+    this.name = name;
+  }
+
+  void setContext(String context) {
+    this.context = context;
+  }
+
+  void setRole(String role) {
+    this.role = role;
+  }
+
+  void setFlag(String flag) {
+    this.flag = flag;
   }
 
   @Override

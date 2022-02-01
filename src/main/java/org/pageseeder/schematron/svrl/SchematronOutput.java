@@ -96,6 +96,10 @@ public final class SchematronOutput implements XMLStreamable {
     this.texts.add(text);
   }
 
+  public void addNsPrefixInAttributeValues(Namespace namespace) {
+    this.nsPrefixInAttributeValues.add(namespace);
+  }
+
   public void addActivePattern(ActivePattern activePattern) {
     this.activePatterns.add(activePattern);
   }
