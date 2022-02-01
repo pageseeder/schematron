@@ -26,7 +26,6 @@ public class SVRL {
 
   public final static String NAMESPACE_URI = "http://purl.oclc.org/dsdl/svrl";
 
-
   /**
    * Replace the namespace URI in the location attribute by the prefix used for them if any.
    *

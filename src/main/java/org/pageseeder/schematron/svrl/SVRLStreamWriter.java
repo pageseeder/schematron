@@ -39,6 +39,8 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   private static final QName REPORT = new QName(SVRL.NAMESPACE_URI, "successful-report");
 
+  private static final QName TEXT = new QName(SVRL.NAMESPACE_URI, "text");
+
   private final Deque<QName> elements = new ArrayDeque<>();
 
   private final OutputOptions options;
@@ -48,6 +50,13 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   private List<String> asserts = new ArrayList<>();
 
   private List<String> reports = new ArrayList<>();
+
+  private SchematronOutput output;
+  private Namespace currentNamespace;
+  private ActivePattern currentActivePattern;
+  private FiredRule currentFiredRule;
+  private AssertOrReport currentAssertOrReport;
+  private HumanText currentHumanText;
 
   public SVRLStreamWriter(Writer out) throws XMLStreamException {
     this(out, OutputOptions.defaults());
@@ -61,7 +70,7 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   private static XMLStreamWriter newXMLStreamWriter(Writer out) throws XMLStreamException {
     XMLOutputFactory factory = XMLOutputFactory.newInstance();
     // We assume the XSLT produce the correct namespace context, so no need for repairing
-    factory.setProperty("javax.xml.stream.isRepairingNamespaces", false);
+    factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, false);
     return factory.createXMLStreamWriter(out);
   }
 
@@ -141,8 +150,8 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
       this.textBuffer.setLength(0);
     }
     if (!isEmptySvrlElement(name.getNamespaceURI(), name.getLocalPart())) {
-      if (isSvrlElement(name.getNamespaceURI()) && this.options.isIndent()) {
-        if (this.elements.size() < 2) {
+      if (this.options.isIndent() && isSvrlElement(name.getNamespaceURI())) {
+        if (!this.elements.contains(TEXT) && !TEXT.equals(name)) {
           super.writeCharacters("\n");
           for (int i = 0; i < this.elements.size(); i++) {
             super.writeCharacters("  ");
@@ -205,7 +214,7 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   private void indentIfRequired() throws XMLStreamException {
     if (this.options.isIndent()) {
-      if (this.elements.size() > 1 && this.elements.size() < 4) {
+      if (this.elements.size() > 1 && (!this.elements.contains(TEXT) || TEXT.equals(this.elements.peek()))) {
         super.writeCharacters("\n");
         for (int i = 0; i < this.elements.size()-1; i++) {
           super.writeCharacters("  ");
