@@ -22,7 +22,7 @@
       <sch:assert test="p:price &gt; $min-price" diagnostics="book"
       >Price of $<sch:value-of select="p:price"/> lower than minimum ($<sch:value-of select="$min-price"/>).</sch:assert>
 
-      <sch:assert test="p:price &lt; $max-price" diagnostics="book"
+      <sch:assert test="p:price &lt; $max-price" diagnostics="book" properties="book-id"
       >Price of $<sch:value-of select="p:price"/> higher than maximum ($<sch:value-of select="$max-price"/>).</sch:assert>
 
     </sch:rule>
