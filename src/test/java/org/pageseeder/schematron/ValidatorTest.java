@@ -101,7 +101,7 @@ public class ValidatorTest {
   @Test
   public void testValidateNamespaces() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(false));
+    factory.setOptions(CompileOptions.defaults().metadata(true));
     File schema = new File("src/test/resources/sch/namespaces-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/namespaces.xml");

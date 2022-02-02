@@ -1,0 +1,58 @@
+<svrl:schematron-output xmlns:svrl="http://purl.oclc.org/dsdl/svrl"
+                        xmlns:error="https://doi.org/10.5281/zenodo.1495494#error"
+                        xmlns:lib="https://example.org/library"
+                        xmlns:p="https://example.org/pricing"
+                        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                        xmlns:sch="http://purl.oclc.org/dsdl/schematron"
+                        xmlns:schxslt="https://doi.org/10.5281/zenodo.1495494"
+                        xmlns:schxslt-api="https://doi.org/10.5281/zenodo.1495494#api"
+                        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                        xmlns:test="https://example.org/test"
+                        xmlns:html="http://www.w3.org/1999/xhtml"
+                        title="Testing Namespaces">
+
+  <svrl:ns-prefix-in-attribute-values prefix="lib" uri="https://example.org/library"/>
+  <svrl:ns-prefix-in-attribute-values prefix="p" uri="https://example.org/pricing"/>
+
+  <svrl:metadata xmlns:dct="http://purl.org/dc/terms/" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <dct:creator>
+      <dct:Agent>
+        <skos:prefLabel>Unknown</skos:prefLabel>
+      </dct:Agent>
+    </dct:creator>
+    <dct:created>2022-02-02T12:22:45.676+11:00</dct:created>
+    <dct:source>
+      <rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dct:creator>
+          <dct:Agent>
+            <skos:prefLabel>SchXslt/1.8.6 SAXON/HE 9.9.1.6</skos:prefLabel>
+            <schxslt.compile.typed-variables xmlns="https://doi.org/10.5281/zenodo.1495494#">true</schxslt.compile.typed-variables>
+          </dct:Agent>
+        </dct:creator>
+        <dct:created>2022-02-02T12:22:45.551+11:00</dct:created>
+      </rdf:Description>
+    </dct:source>
+  </svrl:metadata>
+
+  <svrl:active-pattern name="Prices"
+                       documents="file:/E:/Workspace/schematron/src/test/resources/xml/namespaces.xml"/>
+  <svrl:fired-rule flag="info" icon="info-circle" context="lib:book"/>
+
+  <svrl:successful-report location="/lib:catalog[1]/lib:book[1]" test="p:price &gt; $price-threshold">
+    <svrl:diagnostic-reference diagnostic="book">
+      <svrl:text id="book">In "XML Developer's Guide" by<html:br/> <foreign test:ignore="abc" /> <svrl:emph>Gambardella, Matthew</svrl:emph>,</svrl:text>
+    </svrl:diagnostic-reference>
+    <svrl:text xml:lang="en">Price of $44.95 greater than $4.<marker xml:lang="fr">prix</marker></svrl:text>
+  </svrl:successful-report>
+
+  <svrl:failed-assert location="/lib:catalog[1]/lib:book[1]" test="p:price &lt; $max-price">
+    <svrl:diagnostic-reference diagnostic="book">
+      <svrl:text id="book">In "XML Developer's Guide" by <svrl:emph>Gambardella, Matthew</svrl:emph>,</svrl:text>
+    </svrl:diagnostic-reference>
+    <svrl:property-reference property="book-id">
+      <svrl:text>bk101</svrl:text>
+    </svrl:property-reference>
+    <svrl:text>Price of $44.95 higher than maximum ($10).</svrl:text>
+  </svrl:failed-assert>
+
+</svrl:schematron-output>

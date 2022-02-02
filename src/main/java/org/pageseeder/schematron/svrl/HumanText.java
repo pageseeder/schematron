@@ -1,10 +1,14 @@
 package org.pageseeder.schematron.svrl;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -80,13 +84,15 @@ public class HumanText implements XMLStreamable {
     return fpi;
   }
 
-//  public String getRichText() {
-//    return richText;
-//  }
-//
-//  public String getPlainText() {
-//    return plainText;
-//  }
+  public String toPlainText() {
+    StringBuilder out = new StringBuilder();
+    for (XMLEvent event : this.richText) {
+      if (event.isCharacters()) {
+        out.append(event.asCharacters().getData());
+      }
+    }
+    return out.toString();
+  }
 
   void setSpace(String space) {
     this.space = space;
@@ -108,14 +114,6 @@ public class HumanText implements XMLStreamable {
     this.fpi = fpi;
   }
 
-//  void setRichText(String richText) {
-//    this.richText = richText;
-//  }
-//
-//  void setPlainText(String plainText) {
-//    this.plainText = plainText;
-//  }
-
   void addContent(XMLEvent event) {
     this.richText.add(event);
   }
@@ -128,9 +126,63 @@ public class HumanText implements XMLStreamable {
     if (this.see != null) xml.writeAttribute("see", this.see);
     if (this.icon != null) xml.writeAttribute("icon", this.icon);
     if (this.fpi != null) xml.writeAttribute("fpi", this.fpi);
-    for (XMLEvent event : this.richText) {
-      // TODO
+    List<XMLEvent> text = this.richText;
+    for (int i = 0, textSize = text.size(); i < textSize; i++) {
+      XMLEvent event = text.get(i);
+      if (event.isStartElement()) {
+        if (i < textSize-1 && text.get(i+1).isEndElement()) {
+          writeEmptyElement(xml, event.asStartElement());
+          i++;
+        } else {
+          writeStartElement(xml, event.asStartElement());
+        }
+
+      } else if (event.isCharacters()) {
+        xml.writeCharacters(event.asCharacters().getData());
+      } else if (event.isEndElement()) {
+        xml.writeEndElement();
+      }
     }
     xml.writeEndElement();
   }
+
+  private void writeEmptyElement(XMLStreamWriter xml, StartElement start) throws XMLStreamException {
+    QName name = start.getName();
+    if (name.getPrefix() != null) {
+      xml.writeEmptyElement(name.getPrefix(), name.getLocalPart(), name.getNamespaceURI());
+    } else if (name.getNamespaceURI() != null) {
+      xml.writeEmptyElement(name.getNamespaceURI(), name.getLocalPart());
+    } else  {
+      xml.writeEmptyElement(name.getLocalPart());
+    }
+    for (Iterator<Attribute> it = start.getAttributes(); it.hasNext(); ) {
+      writeAttribute(xml, it.next());
+    }
+  }
+
+  private void writeStartElement(XMLStreamWriter xml, StartElement start) throws XMLStreamException {
+    QName name = start.getName();
+    if (name.getPrefix() != null) {
+      xml.writeStartElement(name.getPrefix(), name.getLocalPart(), name.getNamespaceURI());
+    } else if (name.getNamespaceURI() != null) {
+      xml.writeStartElement(name.getNamespaceURI(), name.getLocalPart());
+    } else  {
+      xml.writeStartElement(name.getLocalPart());
+    }
+    for (Iterator<Attribute> it = start.getAttributes(); it.hasNext(); ) {
+      writeAttribute(xml, it.next());
+    }
+  }
+
+  private void writeAttribute(XMLStreamWriter xml, Attribute attribute) throws XMLStreamException {
+    QName name = attribute.getName();
+    if (name.getPrefix() != null) {
+      xml.writeAttribute(name.getPrefix(), name.getNamespaceURI(), name.getLocalPart(), attribute.getValue());
+    } else if (name.getNamespaceURI() != null) {
+      xml.writeAttribute(name.getNamespaceURI(), name.getLocalPart(), attribute.getValue());
+    } else {
+      xml.writeAttribute(name.getLocalPart(), attribute.getValue());
+    }
+  }
+
 }

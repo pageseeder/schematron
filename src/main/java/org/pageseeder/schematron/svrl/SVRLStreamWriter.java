@@ -35,21 +35,11 @@ import java.util.*;
  */
 public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
-  private static final QName ASSERT = new QName(SVRL.NAMESPACE_URI, "failed-assert");
-
-  private static final QName REPORT = new QName(SVRL.NAMESPACE_URI, "successful-report");
-
   private static final QName TEXT = new QName(SVRL.NAMESPACE_URI, "text");
 
   private final Deque<QName> elements = new ArrayDeque<>();
 
   private final OutputOptions options;
-
-  private StringBuilder textBuffer = new StringBuilder();
-
-  private List<String> asserts = new ArrayList<>();
-
-  private List<String> reports = new ArrayList<>();
 
   public SVRLStreamWriter(Writer out) throws XMLStreamException {
     this(out, OutputOptions.defaults());
@@ -65,14 +55,6 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
     // We assume the XSLT produce the correct namespace context, so no need for repairing
     factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, false);
     return factory.createXMLStreamWriter(out);
-  }
-
-  public List<String> getAsserts() {
-    return this.asserts;
-  }
-
-  public List<String> getReports() {
-    return this.reports;
   }
 
   @Override
@@ -135,13 +117,6 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   @Override
   public void writeEndElement() throws XMLStreamException {
     QName name = this.elements.pop();
-    if (ASSERT.equals(name)) {
-      this.asserts.add(this.textBuffer.toString());
-      this.textBuffer.setLength(0);
-    } else if (REPORT.equals(name)) {
-      this.reports.add(this.textBuffer.toString());
-      this.textBuffer.setLength(0);
-    }
     if (!isEmptySvrlElement(name.getNamespaceURI(), name.getLocalPart())) {
       if (this.options.isIndent() && isSvrlElement(name.getNamespaceURI())) {
         if (!this.elements.contains(TEXT) && !TEXT.equals(name)) {
@@ -157,17 +132,11 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   @Override
   public void writeCharacters(String text) throws XMLStreamException {
-    if (isInAssertOrReport()) {
-      this.textBuffer.append(text);
-    }
     super.writeCharacters(text);
   }
 
   @Override
   public void writeCharacters(char[] text, int start, int len) throws XMLStreamException {
-    if (isInAssertOrReport()) {
-      this.textBuffer.append(text, start, len);
-    }
     super.writeCharacters(text, start, len);
   }
 
@@ -199,10 +168,6 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
             || "active-pattern".equals(localName)
             || "fired-rule".equals(localName)
     );
-  }
-
-  private boolean isInAssertOrReport() {
-    return this.elements.contains(ASSERT) || this.elements.contains(REPORT);
   }
 
   private void indentIfRequired() throws XMLStreamException {

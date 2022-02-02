@@ -1,15 +1,22 @@
 package org.pageseeder.schematron.svrl;
 
+import org.pageseeder.schematron.SchematronException;
+
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.*;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-public class SVRLReader {
+public final class SVRLParser {
+
+  private static final QName TEXT = new QName(SVRL.NAMESPACE_URI, "text");
 
   private SchematronOutput schematronOutput;
   private ActivePattern currentActivePattern;
@@ -19,92 +26,113 @@ public class SVRLReader {
   private PropertyReference currentPropertyReference;
   private HumanText currentHumanText;
 
-  public SchematronOutput parse(String svrl) {
-    return parse(new StringReader(svrl));
+  private Set<String> namespaces = new HashSet<>();
+
+  private SVRLParser(){}
+
+  public static SchematronOutput parse(File svrl) throws SchematronException, IOException {
+    try (Reader reader = new FileReader(svrl)) {
+      return parse(reader);
+    }
   }
 
-  public SchematronOutput parse(Reader svrl) {
+  public static SchematronOutput parse(Reader svrl) throws SchematronException {
     XMLInputFactory factory = XMLInputFactory.newInstance();
     try {
       XMLEventReader eventReader = factory.createXMLEventReader(svrl);
-      while (eventReader.hasNext()) {
+      SVRLParser parser = new SVRLParser();
+      parser.parse(eventReader);
+      return parser.schematronOutput;
+    } catch (XMLStreamException ex) {
+      throw new SchematronException("Unable to parse SVRL", ex);
+    }
+  }
 
-        XMLEvent event = eventReader.nextEvent();
+  private void parse(XMLEventReader eventReader) throws XMLStreamException {
+    NamespaceContext context = null;
+    this.namespaces.add(SVRL.NAMESPACE_URI);
+    while (eventReader.hasNext()) {
+      XMLEvent event = eventReader.nextEvent();
 
-        if (event.getEventType() == XMLStreamConstants.START_ELEMENT) {
-          StartElement startElement = event.asStartElement();
-          QName name = startElement.getName();
-          if (SVRL.NAMESPACE_URI.equals(name.getNamespaceURI())) {
-            switch (name.getLocalPart()) {
-              case "schematron-output":
-                handleSchematronOutput(startElement);
-                break;
-              case "ns-prefix-in-attribute-values":
-                handleNsPrefixInAttributeValues(startElement);
-                break;
-              case "active-pattern":
-                handleActivePattern(startElement);
-                break;
-              case "fired-rule":
-                handleFiredRule(startElement);
-                break;
-              case "failed-assert":
-              case "successful-report":
-                handleAssertOrReport(startElement);
-                break;
-              case "diagnostic-reference":
-                handleDiagnosticReference(startElement);
-                break;
-              case "property-reference":
-                handlePropertyReference(startElement);
-                break;
-              case "text":
-                handleHumanText(startElement);
-                break;
-              default:
-            }
+      if (event.getEventType() == XMLStreamConstants.START_ELEMENT) {
+        StartElement startElement = event.asStartElement();
+        QName name = startElement.getName();
+        if (SVRL.NAMESPACE_URI.equals(name.getNamespaceURI())) {
+          switch (name.getLocalPart()) {
+            case "schematron-output":
+              handleSchematronOutput(startElement);
+              context = startElement.getNamespaceContext();
+              break;
+            case "ns-prefix-in-attribute-values":
+              handleNsPrefixInAttributeValues(startElement);
+              break;
+            case "active-pattern":
+              handleActivePattern(startElement);
+              break;
+            case "fired-rule":
+              handleFiredRule(startElement);
+              break;
+            case "failed-assert":
+            case "successful-report":
+              handleAssertOrReport(startElement);
+              break;
+            case "diagnostic-reference":
+              handleDiagnosticReference(startElement);
+              break;
+            case "property-reference":
+              handlePropertyReference(startElement);
+              break;
+            case "text":
+              handleHumanText(startElement);
+              break;
+            default:
           }
+        }
 
-        } else if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
-          Characters chars = event.asCharacters();
-          
-        } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
-          EndElement endElement = event.asEndElement();
-          QName name = endElement.getName();
-          if (SVRL.NAMESPACE_URI.equals(name.getNamespaceURI())) {
-            switch (name.getLocalPart()) {
-              case "failed-assert":
-              case "successful-report":
-                this.currentAssertOrReport = null;
-                break;
-              case "diagnostic-reference":
-                this.currentDiagnosticReference = null;
-                break;
-              case "property-reference":
-                this.currentPropertyReference = null;
-                break;
-              case "text":
-                if (this.currentDiagnosticReference != null)
-                  this.currentPropertyReference.setText(this.currentHumanText);
-                else if (this.currentPropertyReference != null)
-                  this.currentPropertyReference.setText(this.currentHumanText);
-                else if (this.currentAssertOrReport != null)
-                  this.currentAssertOrReport.setText(this.currentHumanText);
-                else
-                  this.schematronOutput.addText(this.currentHumanText);
-                this.currentHumanText = null;
-                break;
-              default:
-            }
+      } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
+        EndElement endElement = event.asEndElement();
+        QName name = endElement.getName();
+        if (SVRL.NAMESPACE_URI.equals(name.getNamespaceURI())) {
+          switch (name.getLocalPart()) {
+            case "failed-assert":
+            case "successful-report":
+              this.currentAssertOrReport = null;
+              break;
+            case "diagnostic-reference":
+              this.currentDiagnosticReference = null;
+              break;
+            case "property-reference":
+              this.currentPropertyReference = null;
+              break;
+            case "text":
+              if (this.currentDiagnosticReference != null)
+                this.currentDiagnosticReference.setText(this.currentHumanText);
+              else if (this.currentPropertyReference != null)
+                this.currentPropertyReference.setText(this.currentHumanText);
+              else if (this.currentAssertOrReport != null)
+                this.currentAssertOrReport.setText(this.currentHumanText);
+              else
+                this.schematronOutput.addText(this.currentHumanText);
+              this.currentHumanText = null;
+              break;
+            default:
           }
         }
       }
 
+      if (this.currentHumanText != null) {
+        QName name = getName(event);
+        if (!TEXT.equals(name)) {
+          // We store the rich text as XML events
+          this.currentHumanText.addContent(event);
+          if (event.isStartElement()) {
+            checkNamespaces(event.asStartElement());
+          }
+        }
+      }
 
-    } catch (XMLStreamException ex) {
-      ex.printStackTrace();
     }
-    return this.schematronOutput;
+    this.schematronOutput.addNsDeclaration(new Namespace("svrl", SVRL.NAMESPACE_URI));
   }
 
   private void handleSchematronOutput(StartElement startElement) {
@@ -127,6 +155,7 @@ public class SVRLReader {
     if (name != null) activePattern.setName(name);
     if (documents != null) activePattern.setDocuments(documents);
     if (role != null) activePattern.setDocuments(role);
+    this.schematronOutput.addActivePattern(activePattern);
     this.currentActivePattern = activePattern;
   }
 
@@ -207,9 +236,39 @@ public class SVRLReader {
     this.currentHumanText = humanText;
   }
 
+  private void checkNamespaces(StartElement startElement) {
+    // Check if some namespaces need to be declared
+    if (hasValue(startElement.getName().getNamespaceURI())
+        && !this.namespaces.contains(startElement.getName().getNamespaceURI())) {
+      this.namespaces.add(startElement.getName().getNamespaceURI());
+      this.schematronOutput.addNsDeclaration(new Namespace(startElement.getName()));
+    }
+    // Also check attributes
+    for (Iterator<Attribute> i = startElement.getAttributes(); i.hasNext();) {
+      Attribute att = i.next();
+      if (hasValue(att.getName().getNamespaceURI())) {
+        if (!this.namespaces.contains(att.getName().getNamespaceURI())) {
+          this.namespaces.add(att.getName().getNamespaceURI());
+          this.schematronOutput.addNsDeclaration(new Namespace(att.getName()));
+        }
+      }
+    }
+  }
+
+  boolean hasValue(String s) {
+    return s != null && s.length()>0;
+  }
+
 
   private static String getAttributeValue(StartElement startElement, String name) {
     Attribute att = startElement.getAttributeByName(new QName(name));
     return att != null ? att.getValue() : null;
   }
+
+  private static QName getName(XMLEvent event) {
+    if (event.isStartElement()) return event.asStartElement().getName();
+    if (event.isEndElement()) return event.asEndElement().getName();
+    return null;
+  }
+
 }

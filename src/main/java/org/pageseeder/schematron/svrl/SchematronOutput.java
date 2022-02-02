@@ -1,7 +1,10 @@
 package org.pageseeder.schematron.svrl;
 
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,8 @@ public final class SchematronOutput implements XMLStreamable {
   private String phase;
 
   private String schemaVersion;
+
+  private List<Namespace> nsDeclarations = new ArrayList<>();
 
   private List<Namespace> nsPrefixInAttributeValues = new ArrayList<>();
 
@@ -96,6 +101,10 @@ public final class SchematronOutput implements XMLStreamable {
     this.texts.add(text);
   }
 
+  public void addNsDeclaration(Namespace namespace) {
+    this.nsDeclarations.add(namespace);
+  }
+
   public void addNsPrefixInAttributeValues(Namespace namespace) {
     this.nsPrefixInAttributeValues.add(namespace);
   }
@@ -106,6 +115,9 @@ public final class SchematronOutput implements XMLStreamable {
 
   public void toXMLStream(XMLStreamWriter xml) throws XMLStreamException {
     xml.writeStartElement("svrl", "schematron-output", SVRL.NAMESPACE_URI);
+    for (Namespace ns : this.nsDeclarations) {
+      xml.writeNamespace(ns.getPrefix(), ns.getUri());
+    }
     if (this.title != null) xml.writeAttribute("title", this.title);
     if (this.phase != null) xml.writeAttribute("phase", this.phase);
     if (this.schemaVersion != null) xml.writeAttribute("schemaVersion", this.schemaVersion);
@@ -121,5 +133,23 @@ public final class SchematronOutput implements XMLStreamable {
       activePattern.toXMLStream(xml);
     }
     xml.writeEndElement();
+  }
+
+  public String toXML() {
+    StringWriter xml = new StringWriter();
+    toXML(xml);
+    return xml.toString();
+  }
+
+  public void toXML(Writer xml) {
+    try {
+      XMLOutputFactory factory = XMLOutputFactory.newInstance();
+      XMLStreamWriter writer = factory.createXMLStreamWriter(xml);
+      writer.setPrefix("svrl", SVRL.NAMESPACE_URI);
+      toXMLStream(writer);
+    } catch (XMLStreamException ex) {
+      // FIXME
+      throw new RuntimeException(ex);
+    }
   }
 }

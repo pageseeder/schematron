@@ -18,7 +18,11 @@ package org.pageseeder.schematron.svrl;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+/**
+ *
+ */
 public interface XMLStreamable {
 
   void toXMLStream(XMLStreamWriter xml) throws XMLStreamException;
+
 }

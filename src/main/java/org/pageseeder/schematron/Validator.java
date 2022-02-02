@@ -143,7 +143,7 @@ public final class Validator {
       // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
       SVRLStreamWriter svrl = new SVRLStreamWriter(writer, options);
       transformer.transform(xml, new StAXResult(svrl));
-      result.setSVRL(writer.toString(), svrl.getAsserts(), svrl.getReports());
+      result.setSVRL(writer.toString());
 //      transformer.transform(xml, new StreamResult(writer));
 
     } catch (TransformerException ex) {

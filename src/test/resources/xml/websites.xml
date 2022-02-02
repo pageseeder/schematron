@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<websites>
+  <website url="https://dev.pageseeder.com">
+    <name>PageSeeder</name>
+    <category>Developer</category>
+    <status>Online</status>
+  </website>
+  <website url="http://example.com">
+    <name>Example</name>
+    <category>Testing</category>
+    <status>Offline</status>
+  </website>
+  <website url="https://localhost:9000">
+    <name>Localhost</name>
+    <category>Testing</category>
+    <status>Offline</status>
+  </website>
+</websites>
