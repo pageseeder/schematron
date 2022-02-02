@@ -1,4 +1,21 @@
+/*
+ * Copyright 2022 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.pageseeder.schematron.svrl;
+
+import org.pageseeder.schematron.xml.XMLStreamable;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -9,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Top-level element of an SVRL document.
  *
  * <pre>
  *   schematron-output =
@@ -19,7 +37,20 @@ import java.util.List;
  *         human-text*,
  *         ns-prefix-in-attribute-values*,
  *         (active-pattern, (fired-rule, (failed-assert | successful-report)*)+)+
+ *
+ *  # only namespaces from sch:ns need to be reported
+ *  ns-prefix-in-attribute-values =
+ *     element ns-prefix-in-attribute-values {
+ *         attribute prefix { xsd:NMTOKEN },
+ *         attribute uri { text },
+ *         empty
+ *     }
  * </pre>
+ *
+ * @author Christophe Lauret
+ *
+ * @version 2.0
+ * @since 2.0
  */
 public final class SchematronOutput implements XMLStreamable {
 
@@ -29,13 +60,13 @@ public final class SchematronOutput implements XMLStreamable {
 
   private String schemaVersion;
 
-  private List<Namespace> nsDeclarations = new ArrayList<>();
+  private final List<Namespace> nsDeclarations = new ArrayList<>();
 
-  private List<Namespace> nsPrefixInAttributeValues = new ArrayList<>();
+  private final List<Namespace> nsPrefixInAttributeValues = new ArrayList<>();
 
-  private List<HumanText> texts = new ArrayList<>();
+  private final List<HumanText> texts = new ArrayList<>();
 
-  private List<ActivePattern> activePatterns = new ArrayList<>();
+  private final List<ActivePattern> activePatterns = new ArrayList<>();
 
   public String getTitle() {
     return title;

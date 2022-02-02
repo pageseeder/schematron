@@ -16,6 +16,7 @@
 package org.pageseeder.schematron.svrl;
 
 import org.pageseeder.schematron.OutputOptions;
+import org.pageseeder.schematron.xml.XMLStreamWriterWrapper;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -41,6 +42,9 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   private final OutputOptions options;
 
+  private int assertsCount = 0;
+  private int reportsCount = 0;
+
   public SVRLStreamWriter(Writer out) throws XMLStreamException {
     this(out, OutputOptions.defaults());
   }
@@ -55,6 +59,18 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
     // We assume the XSLT produce the correct namespace context, so no need for repairing
     factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, false);
     return factory.createXMLStreamWriter(out);
+  }
+
+  public OutputOptions getOptions() {
+    return options;
+  }
+
+  public int getAssertsCount() {
+    return assertsCount;
+  }
+
+  public int getReportsCount() {
+    return reportsCount;
   }
 
   @Override
@@ -78,6 +94,8 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   public void writeStartElement(String namespaceURI, String localName) throws XMLStreamException {
     this.elements.push(new QName(namespaceURI, localName));
     indentIfRequired();
+    if (isSvrlElement(namespaceURI) && "failed-assert".equals(localName)) this.assertsCount += 1;
+    if (isSvrlElement(namespaceURI) && "successful-report".equals(localName)) this.reportsCount += 1;
     if (isEmptySvrlElement(namespaceURI, localName)) {
       super.writeEmptyElement(localName, namespaceURI);
     } else {
@@ -89,6 +107,8 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   public void writeStartElement(String prefix, String localName, String namespaceURI) throws XMLStreamException {
     this.elements.push(new QName(namespaceURI, localName, prefix));
     indentIfRequired();
+    if (isSvrlElement(namespaceURI) && "failed-assert".equals(localName)) this.assertsCount += 1;
+    if (isSvrlElement(namespaceURI) && "successful-report".equals(localName)) this.reportsCount += 1;
     if (isEmptySvrlElement(namespaceURI, localName)) {
       super.writeEmptyElement(prefix, localName, namespaceURI);
     } else {

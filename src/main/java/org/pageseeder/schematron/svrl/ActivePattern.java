@@ -15,6 +15,8 @@
  */
 package org.pageseeder.schematron.svrl;
 
+import org.pageseeder.schematron.xml.XMLStreamable;
+
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
@@ -32,13 +34,18 @@ import java.util.List;
  *         empty
  *     }
  * </pre>
+ *
+ * @author Christophe Lauret
+ *
+ * @version 2.0
+ * @since 2.0
  */
 public final class ActivePattern implements XMLStreamable {
   private String id;
   private String documents;
   private String name;
   private String role;
-  private List<FiredRule> firedRules = new ArrayList<>();
+  private final List<FiredRule> firedRules = new ArrayList<>();
 
   public String getId() {
     return id;

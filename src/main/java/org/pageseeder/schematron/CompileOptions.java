@@ -17,6 +17,7 @@ package org.pageseeder.schematron;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Available options for compiling Schematron.
@@ -118,7 +119,7 @@ public final class CompileOptions {
     if (streamable != that.streamable) return false;
     if (metadata != that.metadata) return false;
     if (compact != that.compact) return false;
-    return defaultQueryBinding != null ? defaultQueryBinding.equals(that.defaultQueryBinding) : that.defaultQueryBinding == null;
+    return Objects.equals(defaultQueryBinding, that.defaultQueryBinding);
   }
 
   @Override

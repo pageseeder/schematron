@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.pageseeder.schematron.svrl;
+package org.pageseeder.schematron.xml;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
+ * Implementations can serialize their contents to XML using an XMLStreamWriter
  *
+ * @author Christophe Lauret
+ *
+ * @version 2.0
+ * @since 2.0
  */
 public interface XMLStreamable {
 

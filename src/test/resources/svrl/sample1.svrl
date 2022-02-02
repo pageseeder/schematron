@@ -40,19 +40,19 @@
 
   <svrl:successful-report location="/lib:catalog[1]/lib:book[1]" test="p:price &gt; $price-threshold">
     <svrl:diagnostic-reference diagnostic="book">
-      <svrl:text id="book">In "XML Developer's Guide" by<html:br/> <foreign test:ignore="abc" /> <svrl:emph>Gambardella, Matthew</svrl:emph>,</svrl:text>
+      <svrl:text id="book">In "XML Developer's Guide" by<html:br/> <foreign test:ignore="abc" /> <svrl:emph>Gambardella, Matthew</svrl:emph></svrl:text>
     </svrl:diagnostic-reference>
     <svrl:text xml:lang="en">Price of $44.95 greater than $4.<marker xml:lang="fr">prix</marker></svrl:text>
   </svrl:successful-report>
 
   <svrl:failed-assert location="/lib:catalog[1]/lib:book[1]" test="p:price &lt; $max-price">
     <svrl:diagnostic-reference diagnostic="book">
-      <svrl:text id="book">In "XML Developer's Guide" by <svrl:emph>Gambardella, Matthew</svrl:emph>,</svrl:text>
+      <svrl:text id="book">In "XML Developer's Guide" by <svrl:emph>Gambardella, Matthew</svrl:emph></svrl:text>
     </svrl:diagnostic-reference>
     <svrl:property-reference property="book-id">
       <svrl:text>bk101</svrl:text>
     </svrl:property-reference>
-    <svrl:text>Price of $44.95 higher than maximum ($10).</svrl:text>
+    <svrl:text>Price of $44.95 higher than maximum ($10)</svrl:text>
   </svrl:failed-assert>
 
 </svrl:schematron-output>

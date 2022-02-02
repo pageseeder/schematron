@@ -1,27 +1,35 @@
+/*
+ * Copyright 2022 Allette Systems (Australia)
+ * http://www.allette.com.au
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.pageseeder.schematron.svrl;
 
 import javax.xml.namespace.QName;
 import java.util.Objects;
 
 /**
- * <pre>
- *  # only namespaces from sch:ns need to be reported
- *  ns-prefix-in-attribute-values =
- *     element ns-prefix-in-attribute-values {
- *         attribute prefix { xsd:NMTOKEN },
- *         attribute uri { text },
- *         empty
- *     }
- * </pre>
+ * A namespace prefix mapping.
  *
+ * @author Christophe Lauret
+ *
+ * @version 2.0
+ * @since 2.0
  */
 public final class Namespace {
 
-  private String prefix;
-  private String uri;
-
-  public Namespace() {
-  }
+  private final String prefix;
+  private final String uri;
 
   public Namespace(String prefix, String uri) {
     this.prefix = Objects.toString(prefix, "");
@@ -38,14 +46,6 @@ public final class Namespace {
 
   public String getUri() {
     return uri;
-  }
-
-  void setPrefix(String prefix) {
-    this.prefix = Objects.toString(prefix, "");
-  }
-
-  void setUri(String uri) {
-    this.uri = Objects.toString(uri, "");
   }
 
   @Override

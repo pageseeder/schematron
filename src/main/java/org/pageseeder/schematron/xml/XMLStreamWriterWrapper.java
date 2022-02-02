@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.pageseeder.schematron.svrl;
+package org.pageseeder.schematron.xml;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 /**
- * A utility class wrapping a XMLStreamWriter class and delegating the events.
+ * A XMLStreamWriter class delegating the events another XMLStreamWriter implementation.
  *
  * @author Christophe Lauret
  *
  * @version 2.0
  * @since 2.0
  */
-class XMLStreamWriterWrapper implements XMLStreamWriter {
+public class XMLStreamWriterWrapper implements XMLStreamWriter {
 
-  protected XMLStreamWriter writer;
+  protected final XMLStreamWriter writer;
 
   public XMLStreamWriterWrapper(XMLStreamWriter writer) {
     this.writer = writer;

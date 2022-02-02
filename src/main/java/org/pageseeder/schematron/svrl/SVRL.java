@@ -21,8 +21,13 @@ import java.util.regex.Pattern;
 
 /**
  * Utility class for SVRL
+ *
+ * @author Christophe Lauret
+ *
+ * @version 2.0
+ * @since 2.0
  */
-public class SVRL {
+public final class SVRL {
 
   public final static String NAMESPACE_URI = "http://purl.oclc.org/dsdl/svrl";
 

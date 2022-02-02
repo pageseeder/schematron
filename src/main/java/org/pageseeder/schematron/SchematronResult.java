@@ -44,18 +44,14 @@
  */
 package org.pageseeder.schematron;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.pageseeder.schematron.svrl.SVRLHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.pageseeder.schematron.svrl.AssertOrReport;
+import org.pageseeder.schematron.svrl.SVRLParser;
+import org.pageseeder.schematron.svrl.SchematronOutput;
 
 /**
  * Stores the results of the schematron validation.
@@ -63,7 +59,8 @@ import org.xml.sax.SAXException;
  * @author Christophe lauret
  * @author Willy Ekasalim
  *
- * @version 14 February 2007
+ * @version 2.0
+ * @since 1.0
  */
 public final class SchematronResult {
 
@@ -73,15 +70,18 @@ public final class SchematronResult {
   /** Store the SVRL content */
   private String svrl;
 
+  int assertsCount;
+  int reportsCount;
+
   /**
    * An ArrayList to store (String) message of failed assertion found.
    */
-  private final List<String> failedAssertions = new ArrayList<>();
+  private List<String> failedAssertions = null;
 
   /**
    * An ArrayList to store (String) message of successful report found.
    */
-  private final List<String> successfulReports = new ArrayList<>();
+  private List<String> successfulReports = null;
 
   /**
    * Constructor of SchematronResult that accept the source file name (or systemID)
@@ -104,7 +104,23 @@ public final class SchematronResult {
    *         <code>false</code> if there is failed assertion
    */
   public boolean isValid() {
-    return this.failedAssertions.size() == 0;
+    return this.assertsCount == 0;
+  }
+
+  /**
+   * @return <code>true</code> if there's no failed assertion;
+   *         <code>false</code> if there is failed assertion
+   */
+  public boolean hasAsserts() {
+    return this.assertsCount > 0;
+  }
+
+  /**
+   * @return <code>true</code> if there's no failed assertion;
+   *         <code>false</code> if there is failed assertion
+   */
+  public boolean hasReports() {
+    return this.reportsCount > 0;
   }
 
   /**
@@ -117,15 +133,18 @@ public final class SchematronResult {
    */
   public void setSVRL(String svrl) throws SchematronException {
     this.svrl = removeXMLheader(svrl);
-    try {
-      parseSVRL();
-    } catch (Exception ex) {
-      // if there is a parse error then it is probably a different metastylesheet
-      this.svrl = svrl;
-      // was throw new BuildException("Error on parsing SVRL content: " + ex.getMessage());
-    }
+    parse();
   }
 
+  /**
+   * Parse the SVRL output and generate the corresponding SchematronOutput instance.
+   *
+   * @return the corresponding SchematronOutput instance.
+   * @throws SchematronException If any error occurs during parsing.
+   */
+  public SchematronOutput toSchematronOutput() throws SchematronException {
+    return SVRLParser.parse(new StringReader(this.svrl));
+  }
 
   /**
    * Setter for SVRL content/file, also parse the SVRL content to extract the failed assertion and the
@@ -135,10 +154,10 @@ public final class SchematronResult {
    *
    * @throws SchematronException Should an error occur whilst parsing.
    */
-  public void setSVRL(String svrl, List<String> asserts, List<String> reports) throws SchematronException {
+  public void setSVRL(String svrl, int assertsCount, int reportsCount) {
     this.svrl = svrl;
-    this.failedAssertions.addAll(asserts);
-    this.successfulReports.addAll(reports);
+    this.assertsCount = assertsCount;
+    this.reportsCount = reportsCount;
   }
 
   /**
@@ -158,8 +177,8 @@ public final class SchematronResult {
   public void printFailedMessage(PrintStream out) {
     if (this.failedAssertions.size() > 0) {
       out.println("Source file: " + removePath(this.systemID));
-      for (int i = 0; i < this.failedAssertions.size(); i++) {
-        out.println(this.failedAssertions.get(i));
+      for (String failedAssertion : this.failedAssertions) {
+        out.println(failedAssertion);
       }
     }
   }
@@ -174,8 +193,8 @@ public final class SchematronResult {
   public String getFailedMessage() {
     String erroutput = "";
     if (this.failedAssertions.size() > 0) {
-      for (int i = 0; i < this.failedAssertions.size(); i++) {
-        erroutput += this.failedAssertions.get(i);
+      for (String failedAssertion : this.failedAssertions) {
+        erroutput += failedAssertion;
       }
     }
     return erroutput;
@@ -205,14 +224,30 @@ public final class SchematronResult {
   /**
    * @return the list of failed assertions
    */
+  @Deprecated
   public List<String> getFailedAssertions() {
+    if (this.failedAssertions == null) {
+      try {
+        parse();
+      } catch (SchematronException ex) {
+        throw new IllegalStateException("Invalid SVRL content", ex);
+      }
+    }
     return this.failedAssertions;
   }
 
   /**
    * @return the list of successful reports
    */
+  @Deprecated
   public List<String> getSuccessfulReports() {
+    if (this.successfulReports == null) {
+      try {
+        parse();
+      } catch (SchematronException ex) {
+        throw new IllegalStateException("Invalid SVRL content", ex);
+      }
+    }
     return this.successfulReports;
   }
 
@@ -224,11 +259,10 @@ public final class SchematronResult {
    *
    * <p>The message will be stored in failedAssertions and successfulReports by SVRL handler.
    */
-  private void parseSVRL() throws IOException, SAXException, ParserConfigurationException {
-    SVRLHandler handler = new SVRLHandler(this.failedAssertions, this.successfulReports);
-    InputSource is = new InputSource(new StringReader(this.svrl));
-    is.setEncoding("UTF-16");
-    SAXParserFactory.newInstance().newSAXParser().parse(is, handler);
+  private void parse() throws SchematronException {
+    SchematronOutput output = SVRLParser.parse(new StringReader(this.svrl));
+    this.failedAssertions = output.getFailedAsserts().stream().map(AssertOrReport::toMessageString).collect(Collectors.toList());
+    this.successfulReports = output.getFailedAsserts().stream().map(AssertOrReport::toMessageString).collect(Collectors.toList());
   }
 
   /**
