@@ -83,22 +83,19 @@ final class Precompiler {
   /**
    * Generate a compiler using the specified values
    *
-   * @param options
-   * @param listener
-   *
    * @return A compiler usnig the specific options
    *
-   * @throws SchematronException
+   * @throws SchematronException If an error occurs while parsing the XSLT templates
    */
-  public Compiler prepare(ErrorListener listener, Map<String, Object> options) throws SchematronException {
+  public Compiler prepare(ErrorListener listener, Map<String, Object> parameters) throws SchematronException {
     List<Transformer> transformers = new ArrayList<>(3);
     try {
       for (Templates templates : this._pipeline) {
         Transformer transformer = templates.newTransformer();
         transformer.setErrorListener(listener);
         // set some parameters if specified (All transformers get all parameters)
-        if (!options.isEmpty()) {
-          for (Map.Entry<String, Object> p : options.entrySet()) {
+        if (!parameters.isEmpty()) {
+          for (Map.Entry<String, Object> p : parameters.entrySet()) {
             String name = p.getKey();
             transformer.setParameter(name, p.getValue());
           }

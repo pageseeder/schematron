@@ -51,7 +51,7 @@ final class SVRLEventHandler {
     return this.schematronOutput;
   }
 
-  private void handle(XMLEvent event) throws XMLStreamException {
+  private void handle(XMLEvent event) {
     if (event.getEventType() == XMLStreamConstants.START_ELEMENT) {
       StartElement startElement = event.asStartElement();
       QName name = startElement.getName();
