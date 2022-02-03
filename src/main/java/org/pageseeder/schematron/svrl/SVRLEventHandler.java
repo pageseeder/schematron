@@ -166,6 +166,16 @@ final class SVRLEventHandler {
     if (test != null) assertOrReport.setTest(test);
     if (role != null) assertOrReport.setRole(role);
     if (flag != null) assertOrReport.setFlag(flag);
+    // Handle compact format
+    if (this.currentActivePattern == null) {
+      this.currentActivePattern = new ActivePattern();
+      this.schematronOutput.addActivePattern(this.currentActivePattern);
+      this.schematronOutput.setCompact(true);
+    }
+    if (this.currentFiredRule == null) {
+      this.currentFiredRule = new FiredRule();
+      this.currentActivePattern.addFiredRule(this.currentFiredRule);
+    }
     this.currentFiredRule.addAssertOrReport(assertOrReport);
     this.currentAssertOrReport = assertOrReport;
   }

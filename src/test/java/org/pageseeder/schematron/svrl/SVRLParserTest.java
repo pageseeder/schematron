@@ -19,6 +19,15 @@ public class SVRLParserTest {
     checkRoundTrip(output);
   }
 
+  @Test
+  public void testParseCompact() throws SchematronException, IOException {
+    File svrl = new File("src/test/resources/svrl/sample2.svrl");
+    SchematronOutput output = SVRLParser.parse(svrl);
+    System.out.println(output.toXML());
+    checkRoundTrip(output);
+  }
+
+
   private void checkRoundTrip(SchematronOutput output) throws SchematronException {
     String exp = output.toXML();
     String got = SVRLParser.parse(new StringReader(exp)).toXML();

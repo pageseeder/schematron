@@ -60,6 +60,8 @@ public final class SchematronOutput implements XMLStreamable {
 
   private String schemaVersion;
 
+  private boolean isCompact;
+
   private final List<Namespace> nsDeclarations = new ArrayList<>();
 
   private final List<Namespace> nsPrefixInAttributeValues = new ArrayList<>();
@@ -116,31 +118,35 @@ public final class SchematronOutput implements XMLStreamable {
     return successfulReports;
   }
 
-  public void setTitle(String title) {
+  void setTitle(String title) {
     this.title = title;
   }
 
-  public void setPhase(String phase) {
+  public void setCompact(boolean compact) {
+    this.isCompact = compact;
+  }
+
+  void setPhase(String phase) {
     this.phase = phase;
   }
 
-  public void setSchemaVersion(String schemaVersion) {
+  void setSchemaVersion(String schemaVersion) {
     this.schemaVersion = schemaVersion;
   }
 
-  public void addText(HumanText text) {
+  void addText(HumanText text) {
     this.texts.add(text);
   }
 
-  public void addNsDeclaration(Namespace namespace) {
+  void addNsDeclaration(Namespace namespace) {
     this.nsDeclarations.add(namespace);
   }
 
-  public void addNsPrefixInAttributeValues(Namespace namespace) {
+  void addNsPrefixInAttributeValues(Namespace namespace) {
     this.nsPrefixInAttributeValues.add(namespace);
   }
 
-  public void addActivePattern(ActivePattern activePattern) {
+  void addActivePattern(ActivePattern activePattern) {
     this.activePatterns.add(activePattern);
   }
 
@@ -160,8 +166,18 @@ public final class SchematronOutput implements XMLStreamable {
       xml.writeAttribute("prefix", namespace.getPrefix());
       xml.writeAttribute("uri", namespace.getUri());
     }
-    for (ActivePattern activePattern : this.activePatterns) {
-      activePattern.toXMLStream(xml);
+    if (this.isCompact) {
+      for (ActivePattern activePattern : this.activePatterns) {
+        for (FiredRule rule : activePattern.getFiredRules()) {
+          for (AssertOrReport assertOrReport : rule.getAssertsAndReports()) {
+            assertOrReport.toXMLStream(xml);
+          }
+        }
+      }
+    } else {
+      for (ActivePattern activePattern : this.activePatterns) {
+        activePattern.toXMLStream(xml);
+      }
     }
     xml.writeEndElement();
   }
@@ -179,8 +195,8 @@ public final class SchematronOutput implements XMLStreamable {
       writer.setPrefix("svrl", SVRL.NAMESPACE_URI);
       toXMLStream(writer);
     } catch (XMLStreamException ex) {
-      // FIXME
-      throw new RuntimeException(ex);
+      // We might need to find a more appropriate
+      throw new IllegalStateException(ex);
     }
   }
 }
