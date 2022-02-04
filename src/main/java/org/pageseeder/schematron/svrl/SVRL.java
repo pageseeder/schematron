@@ -16,11 +16,13 @@
 package org.pageseeder.schematron.svrl;
 
 import javax.xml.namespace.NamespaceContext;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
- * Utility class for SVRL
+ * Utility class for SVRL.
  *
  * @author Christophe Lauret
  *
@@ -29,7 +31,30 @@ import java.util.regex.Pattern;
  */
 public final class SVRL {
 
+  /**
+   * The SVRL namespace URI "http://purl.oclc.org/dsdl/svrl".
+   */
   public final static String NAMESPACE_URI = "http://purl.oclc.org/dsdl/svrl";
+
+  /**
+   * Convert a list of asserts or report
+   *
+   * @param assertOrReports a list of asserts or report.
+   * @return the corresponding list of messages as a string.
+   */
+  public static List<String> toMessageList(List<AssertOrReport> assertOrReports) {
+    return assertOrReports.stream().map(AssertOrReport::toMessageString).collect(Collectors.toList());
+  }
+
+  /**
+   * Convert a list of asserts or report
+   *
+   * @param assertOrReports a list of asserts or report.
+   * @return the corresponding list of messages as a string.
+   */
+  public static List<String> toMessageList(List<AssertOrReport> assertOrReports, boolean includeDiagnostics) {
+    return assertOrReports.stream().map(a -> a.toMessageString(includeDiagnostics)).collect(Collectors.toList());
+  }
 
   /**
    * Replace the namespace URI in the location attribute by the prefix used for them if any.

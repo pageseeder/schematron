@@ -90,6 +90,18 @@ public final class SchematronOutput implements XMLStreamable {
     return activePatterns;
   }
 
+  public List<AssertOrReport> getAllAssertsOrReports() {
+    List<AssertOrReport> assertOrReports = new ArrayList<>();
+    for (ActivePattern activePattern : activePatterns) {
+      for (FiredRule firedRule : activePattern.getFiredRules()) {
+        for (AssertOrReport assertOrReport : firedRule.getAssertsAndReports()) {
+          assertOrReports.add(assertOrReport);
+        }
+      }
+    }
+    return assertOrReports;
+  }
+
   public List<AssertOrReport> getFailedAsserts() {
     List<AssertOrReport> failedAsserts = new ArrayList<>();
     for (ActivePattern activePattern : activePatterns) {

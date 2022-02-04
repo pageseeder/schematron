@@ -18,8 +18,8 @@ package org.pageseeder.schematron;
 /**
  * Enum for supported query binding attributes.
  *
- * <p>Note: this is used by the precompiler to determine which set of XSLT
- * templates to use for compiling the validator.
+ * @implSpec this is used by the precompiler to determine which set of XSLT
+ *           templates to use for compiling the validator.
  *
  * @author Christophe Lauret
  * @version 2.0
