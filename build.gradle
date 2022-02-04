@@ -1,5 +1,5 @@
 plugins {
-  id 'java-library'
+  id 'application'
   id 'maven-publish'
   id 'io.codearte.nexus-staging' version '0.30.0'
 }
@@ -42,4 +42,8 @@ task includeTemplates(type: Copy) {
   exclude '/xproc/**'
   exclude '/META-INF/**'
   into 'src/main/resources/org/pageseeder/schematron/'
+}
+
+application {
+  mainClassName = 'org.pageseeder.schematron.Main'
 }
