@@ -32,6 +32,8 @@ public final class CompileOptions {
 
   private static final CompileOptions DEFAULT = new CompileOptions("xslt", false, false, false);
 
+  private static final CompileOptions DEFAULT_COMPATIBILITY = new CompileOptions("xslt2", false, false, false);
+
   private final String defaultQueryBinding;
   private final boolean streamable;
   private final boolean metadata;
@@ -48,6 +50,8 @@ public final class CompileOptions {
    * @return the default compile options for Schematron.
    */
   public static CompileOptions defaults() {
+    if ("1.0".equals(System.getProperty("org.pageseeder.schematron.compatibility")))
+      return DEFAULT_COMPATIBILITY;
     return DEFAULT;
   }
 

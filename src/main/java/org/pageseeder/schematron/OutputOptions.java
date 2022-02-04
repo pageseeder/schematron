@@ -27,7 +27,9 @@ package org.pageseeder.schematron;
  */
 public final class OutputOptions {
 
-  private static final OutputOptions DEFAULT =  new OutputOptions("utf-8", false, true, false);
+  private static final OutputOptions DEFAULT = new OutputOptions("utf-8", false, true, false);
+
+  private static final OutputOptions DEFAULT_COMPATIBILITY = new OutputOptions("utf-8", true, true, true);
 
   private final String encoding;
 
@@ -50,6 +52,8 @@ public final class OutputOptions {
    * @return The default output options
    */
   public static OutputOptions defaults() {
+    if ("1.0".equals(System.getProperty("org.pageseeder.schematron.compatibility")))
+      return DEFAULT_COMPATIBILITY;
     return DEFAULT;
   }
 

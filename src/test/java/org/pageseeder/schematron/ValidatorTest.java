@@ -1,5 +1,6 @@
 package org.pageseeder.schematron;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -109,6 +110,22 @@ public class ValidatorTest {
     SchematronResult result = validator.validate(sample, options);
     System.out.println(result.isValid());
     System.out.println(result.getSVRLAsString());
+  }
+
+  @Test
+  public void testValidateCompatibility() throws SchematronException {
+    System.setProperty("org.pageseeder.schematron.compatibility", "1.0");
+    Assert.assertEquals("xslt2", CompileOptions.defaults().defaultQueryBinding());
+    Assert.assertFalse(CompileOptions.defaults().hasMetadata());
+    Assert.assertTrue(OutputOptions.defaults().usePrefixInLocation());
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/standalone-default.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/namespaces.xml");
+    SchematronResult result = validator.validate(sample);
+    System.out.println(result.getSVRLAsString());
+    System.clearProperty("org.pageseeder.schematron.compatibility");
+
   }
 
 }
