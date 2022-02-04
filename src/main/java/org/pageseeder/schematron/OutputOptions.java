@@ -18,7 +18,14 @@ package org.pageseeder.schematron;
 /**
  * Output options for the validator.
  *
- * <p>This class uses a fluent style and instances are immutable.
+ * <p>Output options must be supplied to the Schematron validator and affect the generated SVRL output.</p>
+ *
+ * <p>This class uses a fluent style and instances are immutable so that options can be reused without side-effects.  *
+ * <p>Unless specified, Schematron uses the {@link #defaults()} method.</p>
+ *
+ * <p>For backward-compatibility with the previous version of this library, the defaults can be overriden to
+ * use behave like the previous version. To run in compatibility mode, set the system property
+ * <code>org.pageseeder.schematron.compatibility</code> to "1.0".</p>
  *
  * @author Christophe Lauret
  *
@@ -39,6 +46,7 @@ public final class OutputOptions {
 
   private final boolean usePrefixInLocation;
 
+  /** Keep constructor private */
   private OutputOptions(String encoding, boolean indent, boolean omitXmlDeclaration, boolean usePrefixInLocation) {
     this.encoding = encoding;
     this.indent = indent;
@@ -48,6 +56,15 @@ public final class OutputOptions {
 
   /**
    * The default output options use UTF-8 encoding, do not indent the results and omit the XML declaration.
+   *
+   * <ul>
+   *   <li><code>encoding = "utf-8"</code></li>
+   *   <li><code>indent = false</code></li>
+   *   <li><code>omitXmlDeclaration = true</code></li>
+   *   <li><code>usePrefixInLocation = false</code></li>
+   * </ul>
+   *
+   * <p>In compatibility mode, <code>indent = false</code> and <code>usePrefixInLocation = true</code></p>
    *
    * @return The default output options
    */

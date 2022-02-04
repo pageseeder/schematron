@@ -53,7 +53,7 @@ public enum QueryBinding {
   private final String _value;
 
   /**
-   * Corresponding XSLT version to use
+   * Corresponding XSLT version of the templates to use
    */
   private final String _version;
 

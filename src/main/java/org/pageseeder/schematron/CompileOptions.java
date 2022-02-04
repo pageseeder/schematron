@@ -22,7 +22,15 @@ import java.util.Objects;
 /**
  * Available options for compiling Schematron.
  *
- * <p>This class uses a fluent style and instances are immutable.
+ * <p>Compile options must be supplied to the Schematron compiler and affect the generated validator.</p>
+ *
+ * <p>This class uses a fluent style and instances are immutable so that options can be reused without side-effects.
+ *
+ * <p>Unless specified, Schematron uses the {@link #defaults()} method.</p>
+ *
+ * <p>For backward-compatibility with the previous version of this library, the defaults can be overriden to
+ * use behave like the previous version. To run in compatibility mode, set the system property
+ * <code>org.pageseeder.schematron.compatibility</code> to "1.0".</p>
  *
  * @author Christophe Lauret
  * @version 2.0
@@ -39,6 +47,7 @@ public final class CompileOptions {
   private final boolean metadata;
   private final boolean compact;
 
+  /** Keep constructor private */
   private CompileOptions(String defaultQueryBinding, boolean metadata, boolean streamable, boolean compact) {
     this.defaultQueryBinding = defaultQueryBinding;
     this.metadata = metadata;
@@ -47,6 +56,18 @@ public final class CompileOptions {
   }
 
   /**
+   * The default compile options.
+   *
+   * <p>They are:</p>
+   * <ul>
+   *   <li><code>defaultQueryBinding = "xslt"</code></li>
+   *   <li><code>metadata = false</code></li>
+   *   <li><code>streamable = false</code></li>
+   *   <li><code>compact = false</code></li>
+   * </ul>
+   *
+   * <p>In compatibility mode, <code>defaultQueryBinding = "xslt2"</code></p>
+   *
    * @return the default compile options for Schematron.
    */
   public static CompileOptions defaults() {
@@ -55,34 +76,82 @@ public final class CompileOptions {
     return DEFAULT;
   }
 
+  /**
+   * Schematron assumes `xslt` by default, but this method allows you to change this.
+   *
+   * @param defaultQueryBinding The query binding to use if not specified in the Schema.
+   *
+   * @return A new instance using the specified option.
+   */
   public CompileOptions defaultQueryBinding(String defaultQueryBinding) {
     return new CompileOptions(defaultQueryBinding, this.metadata, this.streamable, this.compact);
   }
 
+  /**
+   * Whether to generate and include the `<sch:metadata>` element in the SVRL output.
+   *
+   * @implNote Used to set the `schxslt.compile.metadata` XSLT parameter.
+   *
+   * @param metadata The Schematron metadata.
+   *
+   * @return A new instance using the specified option.
+   */
   public CompileOptions metadata(boolean metadata) {
     return new CompileOptions(this.defaultQueryBinding, metadata, this.streamable, this.compact);
   }
 
+  /**
+   * Set whether the source is streamble.
+   *
+   * @implNote Used to set the `schxslt.compile.streamable` XSLT parameter.
+   *
+   * @return A new instance using the specified option.
+   */
   public CompileOptions streamable(boolean streamable) {
     return new CompileOptions(this.defaultQueryBinding, this.metadata, streamable, this.compact);
   }
 
+  /**
+   * <p>The latest version all.
+   *
+   * @implNote Used to set the `schxslt.svrl.compact` XSLT parameter.
+   *
+   * @return A new instance using the specified option.
+   */
   public CompileOptions compact(boolean compact) {
     return new CompileOptions(this.defaultQueryBinding, this.metadata, this.streamable, compact);
   }
 
+  /**
+   * Indicates which query binding to use if not specified in the Schema.
+   *
+   * @return "xslt" by default, "xslt2" in compatibility mode.
+   */
   public String defaultQueryBinding() {
     return this.defaultQueryBinding;
   }
 
+  /**
+   * Indicates whether to only generate the compact SVRL output
+   *
+   * @return <code>false</code> by default
+   */
   public boolean isCompact() {
     return this.compact;
   }
 
+  /**
+   * Indicates whether to include the `<sch:metadata>` element in the SVRL output
+   *
+   * @return <code>false</code> by default
+   */
   public boolean hasMetadata() {
     return this.metadata;
   }
 
+  /**
+   * @return <code>false</code> by default
+   */
   public boolean isStreamable() {
     return this.streamable;
   }
