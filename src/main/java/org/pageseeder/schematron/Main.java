@@ -108,7 +108,7 @@ public final class Main {
       } else {
         SchematronOutput output = SVRLParser.parse(new StringReader(result.getSVRLAsString()));
         for (AssertOrReport assertion : output.getAllAssertsOrReports()) {
-          System.out.println(assertion.toMessageString());
+          System.out.println(assertion.toMessageString(this.details));
         }
       }
     }

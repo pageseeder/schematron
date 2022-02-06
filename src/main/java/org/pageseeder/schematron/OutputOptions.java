@@ -34,7 +34,7 @@ package org.pageseeder.schematron;
  */
 public final class OutputOptions {
 
-  private static final OutputOptions DEFAULT = new OutputOptions("utf-8", false, true, false);
+  private static final OutputOptions DEFAULT = new OutputOptions("utf-8", false, false, false);
 
   private static final OutputOptions DEFAULT_COMPATIBILITY = new OutputOptions("utf-8", true, true, true);
 
@@ -60,11 +60,11 @@ public final class OutputOptions {
    * <ul>
    *   <li><code>encoding = "utf-8"</code></li>
    *   <li><code>indent = false</code></li>
-   *   <li><code>omitXmlDeclaration = true</code></li>
+   *   <li><code>omitXmlDeclaration = false</code></li>
    *   <li><code>usePrefixInLocation = false</code></li>
    * </ul>
    *
-   * <p>In compatibility mode, <code>indent = false</code> and <code>usePrefixInLocation = true</code></p>
+   * <p>In compatibility mode, <code>omitXmlDeclaration = true</code> and <code>usePrefixInLocation = true</code></p>
    *
    * @return The default output options
    */
