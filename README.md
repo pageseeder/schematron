@@ -23,14 +23,64 @@ released under the terms of the MIT license.
 
 This library requires an XSLT 2.0 or 3.0 processor at runtime such as Saxon.
 
+## Usage
+
+### Validating
+
+Basic example, using defaults settings returned by
+`CompileOptions.defaults()` and `OutputOptions.defaults()`
+
+```java
+  // Create a validator factory
+  ValidatorFactory factory = new ValidatorFactory();
+
+  // Create a validator for the schema
+  File schema = new File("schema.sch");
+  Validator validator = factory.newValidator(schema);
+
+  // Validate your source document
+  File sample = new File("source.xml");
+  SchematronResult result = validator.validate(sample);
+```
+
+To specify a different phase:
+```java
+  SchematronResult result = validator.validate(sample, "test");
+```
+
+### SRVL
+
+The `SchematronResult` object simply holds the SVRL output, whether the 
+document is valid, and how many failed assertions or successful reports in
+includes.
+
+To simply print the SVRL
+```java
+  String svrl = result.getSVRLAsString();
+```
+
+To get the SVRL as an object model:
+```java
+  SchematronOutput output = results.getSchematronOutput()
+```
+
+
 ## CLI
 
+You need to include an XSLT 2.0 (or later) processor such as Saxon in your
+classpath to use Schematron:
+
 ```shell
-java -cp pso-schematron-2.0.0.jar:Saxon-HE-9.9.1-6.jar \
+java -cp pso-schematron-2.0.0.jar:Saxon-HE-10.6.jar \
       org.pageseeder.schematron.Main \
-      -i example/books.xml \
-      -s example/books.sch
+      -i example/source.xml \
+      -s example/schema.sch
 ```
+
+NB. Using the `-jar` option with `java` takes precedence over the classpath
+`-cp` or `-classpath` and does not work.
+
+Command-line options:
 
 ```
 -i or --input [path]        Path to XML file to validate (required)
@@ -42,8 +92,6 @@ java -cp pso-schematron-2.0.0.jar:Saxon-HE-9.9.1-6.jar \
 -p or --prefix-in-location  Flag to use prefix in locations
 -c or --compact             Flag to only return asserts and reports in SVRL
 ```
-
-
 
 ## Compile options
 
@@ -58,6 +106,15 @@ Default options are:
 | `streamable`          | `false`  |
 | `compact`             | `false`  |
 
+You can specify custom compiler options when configuring the factory:
+
+```java
+  CompileOptions options = CompileOptions.defaults().compact(true);
+  ValidatorFactory factory = new ValidatorFactory();
+  factory.setOptions(options)
+```
+
+Options are immutable and therefore thread-safe.
 
 ### DefaultQueryBinding
 
@@ -93,8 +150,17 @@ Default options are:
 |-----------------------|-----------|
 | `encoding`            | `"utf-8"` |
 | `indent`              | `false`   |
-| `omitXmlDeclaration`  | `true`    |
+| `omitXmlDeclaration`  | `false`   |
 | `usePrefixInLocation` | `false`   |
+
+You can specify custom output options when validating:
+
+```java
+  OutputOptions options = OutputOptions.defaults().indent(true);
+  validator.validate(source, options);
+```
+
+Options are immutable and therefore thread-safe.
 
 ### Encoding
 
@@ -125,8 +191,8 @@ Default: `false`
 
 Version 2.0 uses different defaults to version 1.0.
 
-For backward-compatibility with the previous version of this library, the defaults can be overriden to
-use behave like the previous version. 
+For backward-compatibility with the previous version of this library, 
+the defaults can be overriden to use behave like the previous version. 
 
 To run in compatibility mode, set the system property `org.pageseeder.schematron.compatibility` to `"1.0"` 
 with either
@@ -137,4 +203,17 @@ Or launching it with
 ```shell
   java -Dorg.pageseeder.schematron.compatibility=1.0
 ```
+
+Running in compatiblity mode, only affects the defaults:
+```java
+  CompileOptions.defaults();
+  OutputOptions.defaults();
+```
+
+| Compile option        | Value    |
+|-----------------------|----------|
+| `defaultQueryBinding` | `"xslt"` |
+| `metadata`            | `false`  |
+| `streamable`          | `false`  |
+| `compact`             | `false`  |
 
