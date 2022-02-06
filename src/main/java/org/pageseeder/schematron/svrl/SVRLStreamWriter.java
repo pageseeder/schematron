@@ -38,12 +38,19 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
 
   private static final QName TEXT = new QName(SVRL.NAMESPACE_URI, "text");
 
+  private static final QName OUTPUT = new QName(SVRL.NAMESPACE_URI, "schematron-output");
+
+  private static final QName METADATA = new QName(SVRL.NAMESPACE_URI, "metadata");
+
   private final Deque<QName> elements = new ArrayDeque<>();
 
   private final OutputOptions options;
 
   private int assertsCount = 0;
   private int reportsCount = 0;
+
+  private Set<String> globalNamespaces = new HashSet<>();
+  private Set<String> metadataNamespaces = new HashSet<>();
 
   public SVRLStreamWriter(Writer out) throws XMLStreamException {
     this(out, OutputOptions.defaults());
@@ -176,6 +183,30 @@ public class SVRLStreamWriter extends XMLStreamWriterWrapper {
   public void writeStartDocument(String encoding, String version) throws XMLStreamException {
     if (this.options.isOmitXmlDeclaration()) return;
     super.writeStartDocument(encoding, version);
+  }
+
+  @Override
+  public void writeNamespace(String prefix, String namespaceURI) throws XMLStreamException {
+    // Filter out the SchXslt namespace URIs, we shouldn't need them in the output
+    if (namespaceURI.startsWith("https://doi.org/10.5281/zenodo.1495494")) return;
+    boolean declare = true;
+    if (OUTPUT.equals(this.elements.peek())) {
+      this.globalNamespaces.add(namespaceURI);
+      // We don't generally need these declared globally
+      declare = !"http://purl.oclc.org/dsdl/schematron".equals(namespaceURI)
+             && !"http://www.w3.org/2001/XMLSchema".equals(namespaceURI);
+    } else if (METADATA.equals(this.elements.peek())) {
+      this.metadataNamespaces.add(namespaceURI);
+      declare = !this.globalNamespaces.contains(namespaceURI);
+    } else if (this.elements.contains(METADATA)) {
+      declare = !this.metadataNamespaces.contains(namespaceURI)
+             && !this.globalNamespaces.contains(namespaceURI);
+    } else {
+      declare = !this.globalNamespaces.contains(namespaceURI);
+    }
+    if (declare) {
+      this.writer.writeNamespace(prefix, namespaceURI);
+    }
   }
 
   private boolean isSvrlElement(String namespaceURI) {
