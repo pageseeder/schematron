@@ -33,7 +33,7 @@ dependencies {
 
   testImplementation('junit:junit:4.13.2')
 
-  testRuntimeOnly('net.sf.saxon:Saxon-HE:9.9.1-6')
+  testRuntimeOnly('net.sf.saxon:Saxon-HE:10.6')
 
 }
 
