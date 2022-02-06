@@ -159,7 +159,7 @@ public final class Main {
    */
   public static void printUsage() {
     System.err.println("Schematron");
-    System.err.println("java -jar pso-schematron.jar -i [filename] -s [filename]");
+    System.err.println("java -cp pso-schematron.jar:Saxon.jar org.pageseeder.schematron.Main -i [filename] -s [filename]");
     System.err.println("usage:");
     for (Option option : AVAILABLE_OPTIONS) {
       System.err.print(" -" + option.letter + " or --" + padded(option.word, option.arg, 20));

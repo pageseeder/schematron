@@ -44,6 +44,15 @@ task includeTemplates(type: Copy) {
   into 'src/main/resources/org/pageseeder/schematron/'
 }
 
+jar {
+  manifest {
+    attributes(
+        'Main-Class': 'org.pageseeder.schematron.Main'
+    )
+  }
+}
+
+
 application {
   mainClassName = 'org.pageseeder.schematron.Main'
 }

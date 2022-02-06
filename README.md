@@ -21,10 +21,120 @@ released under the terms of the MIT license.
 
 ## Dependencies
 
-This library requires an XSLT processor at runtime.
+This library requires an XSLT 2.0 or 3.0 processor at runtime such as Saxon.
 
-## Testing
+## CLI
 
-If you want to test the code, ensure that you add the following to the ANT classpath:
-- Saxon (available in text/lib)
-- Either a version of the jar or both the /src and /classes folders
+```shell
+java -cp pso-schematron-2.0.0.jar:Saxon-HE-9.9.1-6.jar \
+      org.pageseeder.schematron.Main \
+      -i example/books.xml \
+      -s example/books.sch
+```
+
+```
+-i or --input [path]        Path to XML file to validate (required)
+-s or --schematron [path]   Path to Schematron file to use (required)
+-o or --output [path]       Path to output file
+-d or --detail              Flag to include diagnotics and properties in text output
+-v or --svrl                Flag to return the results as SVRL instead of text
+-m or --metadata            Flag to include the metadata in SVRL
+-p or --prefix-in-location  Flag to use prefix in locations
+-c or --compact             Flag to only return asserts and reports in SVRL
+```
+
+
+
+## Compile options
+
+Compile options must be supplied to the Schematron compiler and affect the generated validator.
+
+Default options are:
+
+| Compile option        | Value    |
+|-----------------------|----------|
+| `defaultQueryBinding` | `"xslt"` |
+| `metadata`            | `false`  |
+| `streamable`          | `false`  |
+| `compact`             | `false`  |
+
+
+### DefaultQueryBinding
+
+As specified by ISO Schematron, this library assumes that the default query binding is `xslt`
+when it is not specified in your schema. You can override this to be `xslt2`.
+
+Default value: `xslt`
+
+### Metadata
+
+This option tell Schematron to include the `<sch:metadata>` element in the SVRL output.
+It is used to set the `schxslt.compile.metadata` XSLT parameter when compiling with SchXslt.
+
+Default: `false`
+
+### Streamable
+
+It is used to set the `schxslt.compile.streamable` XSLT parameter when compiling with SchXslt.
+
+Default: `false`
+
+### Compact
+
+It is used to set the `schxslt.svrl.compact` XSLT parameter when compiling with SchXslt.
+
+## Output options
+
+Output options must be supplied to the Schematron validator and affect the generated SVRL output.
+
+Default options are:
+
+| Compile option        | Value     |
+|-----------------------|-----------|
+| `encoding`            | `"utf-8"` |
+| `indent`              | `false`   |
+| `omitXmlDeclaration`  | `true`    |
+| `usePrefixInLocation` | `false`   |
+
+### Encoding
+
+To specify character encoding of the SVRL output
+
+Default: `utf-8`
+
+### Indent
+
+To indent the SVRL output.
+
+Default: `false`
+
+### Omit XML declaration
+
+To omit the XML declaration from the output.
+
+Default: `true`
+
+### Use prefix in location
+
+By default, SchXSlt generates the location using the namespace URI.
+YOu can use this option to use the namespace prefix instead.
+
+Default: `false`
+
+## Backward compatibility
+
+Version 2.0 uses different defaults to version 1.0.
+
+For backward-compatibility with the previous version of this library, the defaults can be overriden to
+use behave like the previous version. 
+
+To run in compatibility mode, set the system property `org.pageseeder.schematron.compatibility` to `"1.0"` 
+with either
+```java
+  System.setProperty("org.pageseeder.schematron.compatibility", "1.0");
+```
+Or launching it with 
+```shell
+  java -Dorg.pageseeder.schematron.compatibility=1.0
+```
+
