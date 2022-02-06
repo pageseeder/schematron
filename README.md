@@ -91,6 +91,7 @@ Command-line options:
 -m or --metadata            Flag to include the metadata in SVRL
 -p or --prefix-in-location  Flag to use prefix in locations
 -c or --compact             Flag to only return asserts and reports in SVRL
+-t or --indent              Flag to indent the SVRL output
 ```
 
 ## Compile options

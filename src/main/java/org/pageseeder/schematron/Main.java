@@ -36,7 +36,8 @@ public final class Main {
       new Option('v', "svrl", false, "Flag to return the results as SVRL instead of text"),
       new Option('m', "metadata", false, "Flag to include the metadata in SVRL"),
       new Option('p', "prefix-in-location", false, "Flag to use prefix in locations"),
-      new Option('c', "compact", false, "Flag to only return asserts and reports in SVRL")
+      new Option('c', "compact", false, "Flag to only return asserts and reports in SVRL"),
+      new Option('t', "indent", false, "Flag to indent the SVRL output")
   );
 
   private boolean details = false;
@@ -48,6 +49,8 @@ public final class Main {
   private boolean compact = false;
 
   private boolean prefixInLocation = false;
+
+  private boolean indent = false;
 
   private File input;
 
@@ -86,6 +89,7 @@ public final class Main {
     factory.setOptions(compileOptions);
     Validator validator = factory.newValidator(this.schema);
     OutputOptions outputOptions = OutputOptions.defaults()
+        .indent(this.indent)
         .usePrefixInLocation(this.prefixInLocation);
     SchematronResult result = validator.validate(this.input, outputOptions);
 
@@ -126,6 +130,7 @@ public final class Main {
     main.compact = argumentList.hasOption('c');
     main.metadata = argumentList.hasOption('m');
     main.prefixInLocation = argumentList.hasOption('p');
+    main.indent = argumentList.hasOption('t');
     if (argumentList.hasOption('i')) {
       main.input = new File(argumentList.getValue('i'));
     }
