@@ -1,5 +1,5 @@
 plugins {
-  id 'java-library'
+  id 'application'
   id 'maven-publish'
   id 'io.codearte.nexus-staging' version '0.30.0'
 }
@@ -23,10 +23,36 @@ repositories {
   }
 }
 
+configurations {
+  include
+}
+
 dependencies {
 
-  testImplementation('junit:junit:4.12')
+  include('name.dmaus.schxslt:schxslt:1.8.6')
 
-  testRuntimeOnly('net.sf.saxon:Saxon-HE:9.6.0-6')
+  testImplementation('junit:junit:4.13.2')
 
+  testRuntimeOnly('net.sf.saxon:Saxon-HE:10.6')
+
+}
+
+task includeTemplates(type: Copy) {
+  from { configurations.include.collect { zipTree(it) } }
+  exclude '/xproc/**'
+  exclude '/META-INF/**'
+  into 'src/main/resources/org/pageseeder/schematron/'
+}
+
+jar {
+  manifest {
+    attributes(
+        'Main-Class': 'org.pageseeder.schematron.Main'
+    )
+  }
+}
+
+
+application {
+  mainClassName = 'org.pageseeder.schematron.Main'
 }

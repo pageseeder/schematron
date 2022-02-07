@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Allette Systems (Australia)
+ * Copyright 2022 Allette Systems (Australia)
  * http://www.allette.com.au
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,35 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * ---------- Original copyright notice for this portion of the code ----------
- *
- * Adapted from work by Christophe Lauret and Willy Ekasalim
- *
- * Open Source Initiative OSI - The MIT License:Licensing
- * [OSI Approved License]
- *
- * The MIT License
- *
- * Copyright (c) 2008 Rick Jelliffe, Topologi Pty. Ltd, Allette Systems
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
  */
 package org.pageseeder.schematron;
 
@@ -50,18 +21,13 @@ package org.pageseeder.schematron;
  * <p>Note that failed Schematron assertions are not considered to be errors.
  *
  * @author Christophe Lauret
- * @version 8 August 2012
+ * @version 2.0
+ * @since 1.0
  */
 public final class SchematronException extends Exception {
 
   /** As per requirements. */
-  private static final long serialVersionUID = 2321079962121852344L;
-
-  /**
-   * Creates a new Schematron exception.
-   */
-  public SchematronException() {
-  }
+  private static final long serialVersionUID = 7541115878853544269L;
 
   /**
    * Creates a new Schematron exception.
