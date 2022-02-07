@@ -205,16 +205,30 @@ Or launching it with
   java -Dorg.pageseeder.schematron.compatibility=1.0
 ```
 
-Running in compatiblity mode, only affects the defaults:
+Running in compatiblity mode, only affects the defaults
 ```java
   CompileOptions.defaults();
   OutputOptions.defaults();
 ```
 
-| Compile option        | Value    |
-|-----------------------|----------|
-| `defaultQueryBinding` | `"xslt"` |
-| `metadata`            | `false`  |
-| `streamable`          | `false`  |
-| `compact`             | `false`  |
+It is the equivalent of specifying the following configurations: 
+
+```java
+  CompileOptions.defaults().defaultQueryBinding("xslt2");
+  OutputOptions.defaults().indent(true).omitXmlDeclaration(true).usePrefixInLocation(true);
+```
+
+| Compile option        | Value     |
+|-----------------------|-----------|
+| `defaultQueryBinding` | `"xslt2"` |
+| `metadata`            | `false`   |
+| `streamable`          | `false`   |
+| `compact`             | `false`   |
+
+| Compile option        | Value     |
+|-----------------------|-----------|
+| `encoding`            | `"utf-8"` |
+| `indent`              | `true`    |
+| `omitXmlDeclaration`  | `true`    |
+| `usePrefixInLocation` | `true`    |
 
