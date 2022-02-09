@@ -95,6 +95,34 @@ public final class AssertOrReport implements XMLStreamable {
     return propertyReferences;
   }
 
+  public PropertyReference getPropertyReference(String property) {
+    for (PropertyReference ref : this.propertyReferences) {
+      if (property.equals(ref.getProperty())) return ref;
+    }
+    return null;
+  }
+
+  public DiagnosticReference getDiagnosticReference(String diagnostic) {
+    for (DiagnosticReference ref : this.diagnosticReferences) {
+      if (diagnostic.equals(ref.getDiagnostic())) return ref;
+    }
+    return null;
+  }
+
+  public String getPropertyText(String property) {
+    for (PropertyReference ref : this.propertyReferences) {
+      if (property.equals(ref.getProperty())) return ref.getTextAsString();
+    }
+    return null;
+  }
+
+  public String getDiagnosticText(String diagnostic) {
+    for (DiagnosticReference ref : this.diagnosticReferences) {
+      if (diagnostic.equals(ref.getDiagnostic())) return ref.getTextAsString();
+    }
+    return null;
+  }
+
   public HumanText getText() {
     return text;
   }
