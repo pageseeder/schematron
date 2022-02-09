@@ -45,6 +45,7 @@
 package org.pageseeder.schematron;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +64,7 @@ import org.pageseeder.schematron.svrl.SchematronOutput;
  * @version 2.0
  * @since 1.0
  */
-public final class SchematronResult {
+public final class SchematronResult implements Serializable {
 
   /** The source file name or systemID */
   private final String systemID;
