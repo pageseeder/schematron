@@ -46,6 +46,7 @@ package org.pageseeder.schematron;
 
 import java.io.PrintStream;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
 
 import org.pageseeder.schematron.svrl.AssertOrReport;
@@ -214,6 +215,7 @@ public final class SchematronResult {
    */
   @Deprecated
   public List<String> getFailedAssertions() {
+    if (this.assertsCount == 0) return Collections.emptyList();
     SchematronOutput output = toSchematronOutputSilently();
     return SVRL.toMessageList(output.getFailedAsserts());
   }
@@ -223,6 +225,7 @@ public final class SchematronResult {
    */
   @Deprecated
   public List<String> getSuccessfulReports() {
+    if (this.reportsCount == 0) return Collections.emptyList();
     SchematronOutput output = toSchematronOutputSilently();
     return SVRL.toMessageList(output.getSuccessfulReports());
   }
