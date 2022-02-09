@@ -36,6 +36,10 @@ import javax.xml.transform.stream.StreamSource;
 /**
  * An object representing a single Schematron schema, used to validate multiple XML instances.
  *
+ * <p>Use the {@link ValidatorFactory} to create validators. Validators are thread-safe.
+ *
+ * @implNote A validator stores the precompiled XSLT templates used for validation
+ *
  * @author Christophe Lauret
  * @author Willy Ekasalim
  * @author Rick Jelliffe

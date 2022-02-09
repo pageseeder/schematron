@@ -214,15 +214,13 @@ public final class ValidatorFactory {
   public Validator newValidator(Source schema, String phase) throws SchematronException {
     Document schematron = this.loadSchema(schema);
     String systemId = schematron.getDocumentURI();
-    QueryBinding binding = getQueryBinding(schematron, this.options);
 
-    // TODO Do we still need to do this?
-    // this._factory.setURIResolver(new XSLTURIFinder());
+    // Prepare the compiler
+    QueryBinding binding = getQueryBinding(schematron, this.options);
     Precompiler precompiler = getPrecompiler(binding);
+    Compiler compiler = precompiler.prepare(this._listener, this.options.toParameters(phase));
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
-
-    Compiler compiler = precompiler.prepare(this._listener, this.options.toParameters(phase));
     Document stylesheet = compiler.compile(schemaSource);
     stylesheet.setDocumentURI(systemId);
 
