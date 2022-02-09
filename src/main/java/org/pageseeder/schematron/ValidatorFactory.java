@@ -108,6 +108,13 @@ public final class ValidatorFactory {
   public ValidatorFactory() {
   }
 
+  /**
+   * Constructs a new factory with the specified compile options.
+   */
+  public ValidatorFactory(CompileOptions options) {
+    this.options = options != null ? options : CompileOptions.defaults();
+  }
+
   public void setOptions(CompileOptions options) {
     this.options = options != null ? options : CompileOptions.defaults();
   }
