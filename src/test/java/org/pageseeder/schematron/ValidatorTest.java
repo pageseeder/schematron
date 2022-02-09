@@ -2,9 +2,19 @@ package org.pageseeder.schematron;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.pageseeder.schematron.svrl.AssertOrReport;
+import org.pageseeder.schematron.svrl.SchematronOutput;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ValidatorTest {
 
@@ -15,7 +25,7 @@ public class ValidatorTest {
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.validate(sample);
-    System.out.println(result.isValid());
+    Assert.assertTrue(result.isValid());
     System.out.println(result.getSVRLAsString());
   }
 
@@ -117,27 +127,69 @@ public class ValidatorTest {
   public void testValidateCompatibility() throws SchematronException {
     System.setProperty("org.pageseeder.schematron.compatibility", "1.0");
     Assert.assertEquals("xslt2", CompileOptions.defaults().defaultQueryBinding());
-    Assert.assertFalse(CompileOptions.defaults().hasMetadata());
+    Assert.assertTrue(OutputOptions.defaults().isIndent());
+    Assert.assertTrue(OutputOptions.defaults().isOmitXmlDeclaration());
     Assert.assertTrue(OutputOptions.defaults().usePrefixInLocation());
     ValidatorFactory factory = new ValidatorFactory();
     File schema = new File("src/test/resources/sch/standalone-default.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/namespaces.xml");
     SchematronResult result = validator.validate(sample);
-    System.out.println(result.getSVRLAsString());
     System.clearProperty("org.pageseeder.schematron.compatibility");
+    Assert.assertEquals("xslt", CompileOptions.defaults().defaultQueryBinding());
+    Assert.assertFalse(OutputOptions.defaults().isIndent());
+    Assert.assertFalse(OutputOptions.defaults().isOmitXmlDeclaration());
+    Assert.assertFalse(OutputOptions.defaults().usePrefixInLocation());
   }
 
   @Test
-  public void testValidateParameters() throws SchematronException {
+  public void testValidateParameter() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setDebugMode(true);
     File schema = new File("src/test/resources/sch/params-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.getInstance().validate(sample, Collections.singletonMap("gotit", "Yes!!"));
-    result.toSchematronOutput().getSuccessfulReports();
-    System.out.println(result.toSchematronOutput().getSuccessfulReports().get(0).getText().toPlainText());
+    Assert.assertTrue(result.isValid());
+    SchematronOutput svrl = result.toSchematronOutput();
+    Assert.assertNotNull(svrl);
+    List<AssertOrReport> reports = svrl.getSuccessfulReports();
+    Assert.assertEquals(1, reports.size());
+    String message = reports.get(0).toMessageString();
+    Assert.assertTrue(message.contains("Yes!!"));
+  }
+
+  @Test
+  public void testValidateParameterTypes() throws SchematronException, ParserConfigurationException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/params-types-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+
+    // Create DOM element
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element element = doc.createElement("greeting");
+    element.setAttribute("lang", "fr");
+    element.setTextContent("Bonjour!");
+
+    // Create parameters
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("name", "John Smith"); // String
+    parameters.put("age", 33); // Integer
+    parameters.put("dob", LocalDate.parse("1999-12-31")); // Date
+    parameters.put("id", 1234567890L); // Long
+    parameters.put("greeting", element); // DOM element
+
+    // Validate
+    SchematronResult result = validator.getInstance().validate(sample, parameters);
+    AssertOrReport report = result.toSchematronOutput().getSuccessfulReports().get(0);
+
+    // And check parameters
+    Assert.assertEquals("John Smith",  report.getPropertyText("name"));
+    Assert.assertEquals("33",  report.getPropertyText("age"));
+    Assert.assertEquals("1999-12-31",  report.getPropertyText("dob"));
+    Assert.assertEquals("1234567890",  report.getPropertyText("id"));
+    Assert.assertEquals("fr",  report.getPropertyText("lang"));
+    Assert.assertEquals("Bonjour!",  report.getPropertyText("greeting"));
   }
 
 }
