@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Collections;
 
 public class ValidatorTest {
 
@@ -125,7 +126,18 @@ public class ValidatorTest {
     SchematronResult result = validator.validate(sample);
     System.out.println(result.getSVRLAsString());
     System.clearProperty("org.pageseeder.schematron.compatibility");
+  }
 
+  @Test
+  public void testValidateParameters() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    factory.setDebugMode(true);
+    File schema = new File("src/test/resources/sch/params-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult result = validator.getInstance().validate(sample, Collections.singletonMap("gotit", "Yes!!"));
+    result.toSchematronOutput().getSuccessfulReports();
+    System.out.println(result.toSchematronOutput().getSuccessfulReports().get(0).getText().toPlainText());
   }
 
 }

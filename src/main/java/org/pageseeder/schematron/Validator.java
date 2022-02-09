@@ -19,6 +19,8 @@ import org.pageseeder.schematron.svrl.SVRLStreamWriter;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
@@ -133,26 +135,39 @@ public final class Validator {
    * @throws SchematronException Should an error occur during validation.
    */
   public SchematronResult validate(Source xml, OutputOptions options, URIResolver resolver) throws SchematronException {
+    return validate(xml, options, resolver, Collections.emptyMap());
+  }
+
+  /**
+   * Validates the XML data.
+   *
+   * @param xml      XML source to validate
+   * @param options  The output options
+   * @param resolver The URI resolver to use (overrides default)
+   *
+   * @return the results of the validation.
+   *
+   * @throws SchematronException Should an error occur during validation.
+   */
+  public SchematronResult validate(Source xml, OutputOptions options, URIResolver resolver, Map<String, Object> parameters) throws SchematronException {
     Transformer transformer = newTransformer(this._validator, options, resolver);
+    Instance instance = new Instance(transformer, options);
+    return instance.validate(xml, parameters);
+  }
 
-    // Generate the result
-    StringWriter writer = new StringWriter();
-    SchematronResult result = new SchematronResult(xml.getSystemId());
+  public Instance getInstance() throws SchematronException {
+    Transformer transformer = newTransformer(this._validator, OutputOptions.defaults(), null);
+    return new Instance(transformer, OutputOptions.defaults());
+  }
 
-    try {
-      // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
-      SVRLStreamWriter svrl = new SVRLStreamWriter(writer, options);
-      transformer.transform(xml, new StAXResult(svrl));
-      result.setSVRL(writer.toString(), svrl.getAssertsCount(), svrl.getReportsCount());
-//      transformer.transform(xml, new StreamResult(writer));
+  public Instance getInstance(OutputOptions options) throws SchematronException {
+    Transformer transformer = newTransformer(this._validator, options, null);
+    return new Instance(transformer, options);
+  }
 
-    } catch (TransformerException ex) {
-      throw new SchematronException("Unable to process file with schematron", ex);
-    } catch (XMLStreamException ex) {
-      throw new SchematronException("Unable to process SVRL results", ex);
-    }
-
-    return result;
+  public Instance getInstance(OutputOptions options, URIResolver resolver) throws SchematronException {
+    Transformer transformer = newTransformer(this._validator, options, resolver);
+    return new Instance(transformer, options);
   }
 
   private static Transformer newTransformer(Templates validator, OutputOptions options, URIResolver resolver)
@@ -176,5 +191,83 @@ public final class Validator {
     return transformer;
   }
 
+  /**
+   * A validating instance lets you reuse a validator that uses the same output options and resolver.
+   *
+   * <p>It is not thread-safe</p>
+   *
+   * @author Christophe Lauret
+   *
+   * @version 2.0
+   * @since 2.0
+   */
+  public static class Instance {
+
+    private final Transformer _transformer;
+    private final OutputOptions _options;
+
+    private boolean validating = false;
+
+    private Instance(Transformer transformer, OutputOptions options) {
+      this._transformer = transformer;
+      this._options = options;
+    }
+
+    public SchematronResult validate(File xml) throws SchematronException {
+      return this.validate(new StreamSource(xml));
+    }
+
+    public SchematronResult validate(Source xml) throws SchematronException {
+      return this.validate(xml, null);
+    }
+
+    public SchematronResult validate(File xml, Map<String, Object> parameters) throws SchematronException {
+      return this.validate(new StreamSource(xml), parameters);
+    }
+
+    /**
+     * Validates the XML data.
+     *
+     * @param xml XML source to validate
+     * @param parameters Parameters to pass to the validators
+     *
+     * @return the results of the validation.
+     *
+     * @throws SchematronException Should an error occur during validation.
+     */
+    public SchematronResult validate(Source xml, Map<String, Object> parameters) throws SchematronException {
+      if (this.validating) throw new IllegalStateException("Unable to validate multiple source concurrently");
+      this.validating = true;
+
+      // Generate the result
+      StringWriter writer = new StringWriter();
+      SchematronResult result = new SchematronResult(xml.getSystemId());
+
+      try {
+        // Set the parameters if any
+        if (parameters != null && parameters.size() > 0) {
+          for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+            this._transformer.setParameter(parameter.getKey(), parameter.getValue());
+          }
+        }
+
+        // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
+        SVRLStreamWriter svrl = new SVRLStreamWriter(writer, this._options);
+        this._transformer.transform(xml, new StAXResult(svrl));
+        result.setSVRL(writer.toString(), svrl.getAssertsCount(), svrl.getReportsCount());
+//      transformer.transform(xml, new StreamResult(writer));
+
+      } catch (TransformerException ex) {
+        throw new SchematronException("Unable to process file with schematron", ex);
+      } catch (XMLStreamException ex) {
+        throw new SchematronException("Unable to process SVRL results", ex);
+      } finally {
+        this.validating = false;
+      }
+
+      return result;
+    }
+
+  }
 
 }

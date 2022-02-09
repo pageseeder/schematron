@@ -129,7 +129,8 @@ public final class ValidatorFactory {
    *
    * @param listener The error listener.
    *
-   * @throws IllegalArgumentException If listener is <code>null</code>. */
+   * @throws IllegalArgumentException If listener is <code>null</code>.
+   */
   public void setErrorListener(ErrorListener listener) {
     if (listener == null) throw new NullPointerException("The error listener must not be null.");
     this._listener = listener;
@@ -143,29 +144,6 @@ public final class ValidatorFactory {
   public ErrorListener getErrorListener() {
     return this._listener;
   }
-//
-//  /**
-//   * Add a parameter to be sent to the preprocessor.
-//   *
-//   * @see javax.xml.transform.Transformer#setParameter(String, Object)
-//   *
-//   * @param name  The name of the parameter.
-//   * @param value The value object.
-//   */
-//  public void setParameter(String name, Object value) {
-//    this._options.put(name, value);
-//  }
-//
-//  /**
-//   * Returns the parameters value for the specified name.
-//   *
-//   * @param name The name of the parameter.
-//   *
-//   * @return The parameter value or <code>null</code> if the parameter was not specified.
-//   */
-//  public Object getParameter(String name) {
-//    return this._options.get(name);
-//  }
 
   /**
    * If debug mode is set to true, then preprocessing stylesheet will be outputted in file
@@ -209,7 +187,6 @@ public final class ValidatorFactory {
     StreamSource source = new StreamSource(schema);
     return newValidator(source, phase);
   }
-
 
   /**
    * Process the specified schema into a Validator object.
