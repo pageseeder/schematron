@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
@@ -73,15 +74,15 @@ public final class Validator {
    * @throws NullPointerException If the templates are <code>null</code>.
    */
   Validator(Templates templates) {
-    this(templates, null, null);
+    this(templates, OutputOptions.defaults(), null);
   }
 
-  private Validator(Templates templates, OutputOptions defaultOptions, URIResolver defaultResolver) {
+  private Validator(Templates templates, OutputOptions options, URIResolver resolver) {
     if (templates == null)
       throw new NullPointerException("A validator cannot be constructed with null templates");
     this._validator = templates;
-    this._options = defaultOptions != null ? defaultOptions : OutputOptions.defaults();
-    this.resolver = defaultResolver;
+    this._options = Objects.requireNonNull(options);
+    this.resolver = resolver;
   }
 
   /**
@@ -92,6 +93,10 @@ public final class Validator {
    */
   public Validator options(OutputOptions options) {
     return new Validator(this._validator, options, this.resolver);
+  }
+
+  public OutputOptions options() {
+    return this._options;
   }
 
   /**
