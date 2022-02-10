@@ -68,6 +68,13 @@ import javax.xml.transform.stream.StreamSource;
  */
 public final class ValidatorFactory {
 
+  private static final DebugOutput NO_DEBUG = (systemId) -> null;
+
+  private static final DebugOutput BASIC_DEBUG = (systemId) -> {
+    String filename = "debug."+removePathExtension(systemId)+".xsl";
+    return new OutputStreamWriter(new FileOutputStream(filename), StandardCharsets.UTF_8);
+  };
+
   /**
    * Default XSLT processor.
    */
@@ -76,22 +83,22 @@ public final class ValidatorFactory {
   /**
    * The URI resolver class.
    */
-  private Class<URIResolver> resolver;
+  private final Class<URIResolver> _resolver;
 
   /**
    * The error event listener for the ValidatorFactory.
    */
-  private ErrorListener listener;
+  private final ErrorListener _listener;
 
   /**
    * Indicates where the compiled stylesheets should be saved for debugging.
    */
-  private DebugOutput debug = (systemId) -> null;
+  private final DebugOutput _debug;
 
   /**
    * Default compile options for this factory.
    */
-  private CompileOptions options;
+  private final CompileOptions _options;
 
   /**
    * We keep a shared copy of precompilers (they are thread-safe)
@@ -111,29 +118,31 @@ public final class ValidatorFactory {
    */
   public ValidatorFactory(CompileOptions options) {
     this._factory = TransformerFactory.newInstance();
-    this.listener = this._factory.getErrorListener();
-    this.options = Objects.requireNonNull(options);
+    this._options = Objects.requireNonNull(options);
+    this._listener = this._factory.getErrorListener();
+    this._resolver = null;
+    this._debug = NO_DEBUG;
   }
 
   private ValidatorFactory(TransformerFactory factory, CompileOptions options, ErrorListener listener, Class<URIResolver> resolver, DebugOutput debug) {
     this._factory = factory;
-    this.options = Objects.requireNonNull(options);
-    this.listener = listener;
-    this.resolver = resolver;
-    this.debug = debug;
-  }
-
-  @Deprecated
-  public void setOptions(CompileOptions options) {
-    this.options = options != null ? options : CompileOptions.defaults();
+    this._options = Objects.requireNonNull(options);
+    this._listener = Objects.requireNonNull(listener);
+    this._resolver = resolver;
+    this._debug = debug;
   }
 
   public ValidatorFactory options(CompileOptions options) {
-    return new ValidatorFactory(this._factory, options, this.listener, this.resolver, this.debug);
+    return new ValidatorFactory(this._factory, options, this._listener, this._resolver, this._debug);
   }
 
+  @Deprecated
   public CompileOptions getOptions() {
-    return this.options;
+    return this._options;
+  }
+
+  public CompileOptions options() {
+    return this._options;
   }
 
   /**
@@ -141,17 +150,9 @@ public final class ValidatorFactory {
    * Schematron schema, not for the Schematron validation itself.
    *
    * @param listener The error listener.
-   *
-   * @throws IllegalArgumentException If listener is <code>null</code>.
    */
-  @Deprecated
-  public void setErrorListener(ErrorListener listener) {
-    if (listener == null) throw new NullPointerException("The error listener must not be null.");
-    this.listener = listener;
-  }
-
   public ValidatorFactory errorListener(ErrorListener listener) {
-    return new ValidatorFactory(this._factory, this.options, listener, this.resolver, this.debug);
+    return new ValidatorFactory(this._factory, this._options, listener, this._resolver, this._debug);
   }
 
   /**
@@ -160,36 +161,48 @@ public final class ValidatorFactory {
    * @return The current error handler, which should never be <code>null</code>.
    */
   public ErrorListener getErrorListener() {
-    return this.listener;
+    return this._listener;
   }
 
   /**
-   * If debug mode is set to true, then preprocessing stylesheet will be outputted in file
-   * debug.xslt This has to be called before <code>newValidator()</code> to take effect.
+   * Enable debug mode to save a copy of the generated stylesheet to a file for debugging.
+   *
+   * <p>This method assigned a default <code>DebugOutput</code> implementation. To specify your
+   * own use the {@link #debug(DebugOutput)} method.</p>
+   *
+   * @return A new factory if debug is not already enabled.
    */
-  @Deprecated
-  public void setDebugMode(boolean debugMode) {
-    if (debugMode) {
-      this.debug = (systemId) -> new OutputStreamWriter(new FileOutputStream("debug.xsl"), StandardCharsets.UTF_8);
-    } else {
-      this.debug = (systemId) -> null;
-    }
+  public ValidatorFactory enableDebug() {
+    // Debug is already enabled
+    if (this._debug != null && this._debug != NO_DEBUG) return this;
+    return new ValidatorFactory(this._factory, this._options, this._listener, this._resolver, BASIC_DEBUG);
   }
 
+  /**
+   * Disable debug mode.
+   *
+   * @return A new factory if debug is not already disabled.
+   */
+  public ValidatorFactory disableDebug() {
+    // Debug is already disabled
+    if (this._debug == null || this._debug == NO_DEBUG) return this;
+    return new ValidatorFactory(this._factory, this._options, this._listener, this._resolver, NO_DEBUG);
+  }
+
+  /**
+   * Enable debug mode to save a copy of the generated stylesheet when it is generated.
+   *
+   * @return A new factory if debug is not already enabled.
+   */
   public ValidatorFactory debug(DebugOutput debug) {
-    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debug);
+    return new ValidatorFactory(this._factory, this._options, this._listener, this._resolver, debug);
   }
 
   /**
    * Set the class name of the resolver to use, overriding built-in Apache resolver
    */
-  @Deprecated
-  public void setResolver(Class<URIResolver> resolver) {
-    this.resolver = resolver;
-  }
-
   public ValidatorFactory resolver(Class<URIResolver> resolver) {
-    return new ValidatorFactory(this._factory, this.options, this.listener, resolver, this.debug);
+    return new ValidatorFactory(this._factory, this._options, this._listener, resolver, this._debug);
   }
 
   /**
@@ -248,22 +261,22 @@ public final class ValidatorFactory {
     String systemId = schematron.getDocumentURI();
 
     // Prepare the compiler
-    QueryBinding binding = getQueryBinding(schematron, this.options);
+    QueryBinding binding = getQueryBinding(schematron, this._options);
     Precompiler precompiler = getPrecompiler(binding);
-    Compiler compiler = precompiler.prepare(this.listener, this.options.toParameters(phase));
+    Compiler compiler = precompiler.prepare(this._listener, this._options.toParameters(phase));
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
     Document stylesheet = compiler.compile(schemaSource);
     stylesheet.setDocumentURI(systemId);
 
     // check debug mode, if true then print the preprocessing results to debug.xslt
-    if (this.debug != null) {
+    if (this._debug != null) {
       try {
-        Writer writer = this.debug.getWriter(systemId);
+        Writer writer = this._debug.getWriter(systemId);
         if (writer != null) {
           StreamResult result = new StreamResult(writer);
           Transformer transformer = this._factory.newTransformer();
-          transformer.setOutputProperty(OutputKeys.INDENT, this.debug.indent() ? "yes" : "no");
+          transformer.setOutputProperty(OutputKeys.INDENT, this._debug.indent() ? "yes" : "no");
           transformer.transform(new DOMSource(stylesheet), result);
         }
       } catch (TransformerException | IOException ex) {
@@ -272,9 +285,9 @@ public final class ValidatorFactory {
     }
 
     // Generate the templates from the preprocessing results
-    if (this.resolver != null) {
+    if (this._resolver != null) {
       try {
-        this._factory.setURIResolver(this.resolver.newInstance());
+        this._factory.setURIResolver(this._resolver.newInstance());
       } catch (Throwable t) {
         throw new SchematronException("Unable to instantiate new resolver", t);
       }
@@ -319,6 +332,18 @@ public final class ValidatorFactory {
     if ("1.0".equals(binding.version())) precompiler1 = precompiler;
     else if ("2.0".equals(binding.version())) precompiler2 = precompiler;
     return precompiler;
+  }
+
+
+  /**
+   * Given full path to the path and return file name only
+   *
+   * @param filepath full path to a file
+   * @return name of the file only without any of the path
+   */
+  private static String removePathExtension(String filepath) {
+    String[] split = filepath.split("[/\\\\]");
+    return split[split.length - 1].replaceAll(".sch$", "");
   }
 
 }
