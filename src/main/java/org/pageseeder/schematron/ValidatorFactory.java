@@ -47,6 +47,7 @@ package org.pageseeder.schematron;
 import org.w3c.dom.Document;
 
 import java.io.*;
+import java.util.Objects;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Source;
@@ -63,6 +64,8 @@ import javax.xml.transform.stream.StreamSource;
 /**
  * A ValidatorFactory instance can be used to create a Validator object.
  *
+ * <p>This class uses a fluent style API.</p>
+ *
  * @author Christophe Lauret
  *
  * @version 2.0
@@ -73,17 +76,17 @@ public final class ValidatorFactory {
   /**
    * Default XSLT processor.
    */
-  private final TransformerFactory _factory = TransformerFactory.newInstance();
+  private final TransformerFactory _factory;
 
   /**
    * The URI resolver class.
    */
-  private Class<URIResolver> _resolver;
+  private Class<URIResolver> resolver;
 
   /**
    * The error event listener for the ValidatorFactory.
    */
-  private ErrorListener listener = this._factory.getErrorListener();
+  private ErrorListener listener;
 
   /**
    * If set to <code>true</code> (default is <code>false</code>), then preprocessing stylesheet will be outputted to
@@ -94,7 +97,7 @@ public final class ValidatorFactory {
   /**
    * Default compile options for this factory.
    */
-  private CompileOptions options = CompileOptions.defaults();
+  private CompileOptions options;
 
   /**
    * We keep a shared copy of precompilers (they are thread-safe)
@@ -106,17 +109,33 @@ public final class ValidatorFactory {
    * Constructs a new factory.
    */
   public ValidatorFactory() {
+    this(CompileOptions.defaults());
   }
 
   /**
    * Constructs a new factory with the specified compile options.
    */
   public ValidatorFactory(CompileOptions options) {
+    this._factory = TransformerFactory.newInstance();
+    this.listener = this._factory.getErrorListener();
+    this.options = Objects.requireNonNull(options);
+  }
+
+  private ValidatorFactory(TransformerFactory factory, CompileOptions options, ErrorListener listener, Class<URIResolver> resolver, boolean debugMode) {
+    this._factory = factory;
+    this.options = Objects.requireNonNull(options);
+    this.listener = listener;
+    this.resolver = resolver;
+    this.debugMode = debugMode;
+  }
+
+  @Deprecated
+  public void setOptions(CompileOptions options) {
     this.options = options != null ? options : CompileOptions.defaults();
   }
 
-  public void setOptions(CompileOptions options) {
-    this.options = options != null ? options : CompileOptions.defaults();
+  public ValidatorFactory options(CompileOptions options) {
+    return new ValidatorFactory(this._factory, options, this.listener, this.resolver, this.debugMode);
   }
 
   public CompileOptions getOptions() {
@@ -131,9 +150,14 @@ public final class ValidatorFactory {
    *
    * @throws IllegalArgumentException If listener is <code>null</code>.
    */
+  @Deprecated
   public void setErrorListener(ErrorListener listener) {
     if (listener == null) throw new NullPointerException("The error listener must not be null.");
     this.listener = listener;
+  }
+
+  public ValidatorFactory errorListener(ErrorListener listener) {
+    return new ValidatorFactory(this._factory, this.options, listener, this.resolver, this.debugMode);
   }
 
   /**
@@ -149,15 +173,25 @@ public final class ValidatorFactory {
    * If debug mode is set to true, then preprocessing stylesheet will be outputted in file
    * debug.xslt This has to be called before <code>newValidator()</code> to take effect.
    */
+  @Deprecated
   public void setDebugMode(boolean debugMode) {
     this.debugMode = debugMode;
+  }
+
+  public ValidatorFactory debugMode(boolean debugMode) {
+    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debugMode);
   }
 
   /**
    * Set the class name of the resolver to use, overriding built-in Apache resolver
    */
+  @Deprecated
   public void setResolver(Class<URIResolver> resolver) {
-    this._resolver = resolver;
+    this.resolver = resolver;
+  }
+
+  public ValidatorFactory resolver(Class<URIResolver> resolver) {
+    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debugMode);
   }
 
   /**
@@ -237,9 +271,9 @@ public final class ValidatorFactory {
     }
 
     // Generate the templates from the preprocessing results
-    if (this._resolver != null) {
+    if (this.resolver != null) {
       try {
-        this._factory.setURIResolver(this._resolver.newInstance());
+        this._factory.setURIResolver(this.resolver.newInstance());
       } catch (Throwable t) {
         throw new SchematronException("Unable to instantiate new resolver", t);
       }
@@ -285,4 +319,5 @@ public final class ValidatorFactory {
     else if ("2.0".equals(binding.version())) precompiler2 = precompiler;
     return precompiler;
   }
+
 }

@@ -19,7 +19,7 @@ public final class ValidatorFactoryTest {
   }
 
   @Test
-  public void testCompileStandaloneDefault() throws SchematronException, IOException, SAXException {
+  public void testCompileStandaloneDefault() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
     File schema = new File("src/test/resources/sch/standalone-default.sch");
     factory.newValidator(schema);
