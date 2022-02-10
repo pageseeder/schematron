@@ -9,7 +9,7 @@ public final class OutputOptionsTest {
   public void testDefault() {
     Assert.assertEquals("utf-8", OutputOptions.defaults().encoding());
     Assert.assertFalse(OutputOptions.defaults().isIndent());
-    Assert.assertTrue(OutputOptions.defaults().isOmitXmlDeclaration());
+    Assert.assertFalse(OutputOptions.defaults().isOmitXmlDeclaration());
     Assert.assertFalse(OutputOptions.defaults().usePrefixInLocation());
   }
 

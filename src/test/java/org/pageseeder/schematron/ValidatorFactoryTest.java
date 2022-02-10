@@ -1,8 +1,14 @@
 package org.pageseeder.schematron;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.xml.sax.*;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
-import java.io.File;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public final class ValidatorFactoryTest {
 
@@ -49,9 +55,10 @@ public final class ValidatorFactoryTest {
   }
 
   @Test(expected = SchematronException.class)
-  public void testCompileInvalid() throws SchematronException {
+  public void testCompileInvalid() throws Exception {
     ValidatorFactory factory = new ValidatorFactory();
     File schema = new File("src/test/resources/sch/standalone-invalid.sch");
+    validateSchematron(new InputSource(new FileReader(schema)));
     factory.newValidator(schema);
   }
 
@@ -67,6 +74,47 @@ public final class ValidatorFactoryTest {
     ValidatorFactory factory = new ValidatorFactory();
     File schema = new File("src/test/resources/sch/standalone-unknown-binding.sch");
     factory.newValidator(schema);
+  }
+
+  @Test
+  public void testCompileWithDebug() throws SchematronException {
+    StringWriter debug = new StringWriter();
+    ValidatorFactory factory = new ValidatorFactory().debug((systemId -> debug));
+    File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debug.toString().length() > 0);
+  }
+
+  private static List<String> validateSchematron(InputSource source) throws IOException {
+    List<String> errors = new ArrayList<>();
+    try {
+      XMLReader reader = XMLReaderFactory.createXMLReader();
+      reader.setFeature("http://xml.org/sax/features/validation", true);
+      reader.setFeature("http://apache.org/xml/features/validation/schema", true);
+      reader.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
+      String path = new File("src/test/resources/xsd/iso-schematron-2016.xsd").getAbsolutePath();
+      reader.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", "http://purl.oclc.org/dsdl/schematron" + " " + path);
+      reader.setErrorHandler(new DefaultHandler() {
+        @Override
+        public void error(SAXParseException ex) {
+          String error = "[L" + ex.getLineNumber() + ":" + ex.getColumnNumber() + "] " + ex.getMessage();
+          System.out.println(error);
+          errors.add(error);
+        }
+
+        @Override
+        public void fatalError(SAXParseException ex) {
+          String error = "[" + ex.getLineNumber() + ":" + ex.getColumnNumber() + "] " + ex.getMessage();
+          System.out.println(error);
+          errors.add(error);
+        }
+      });
+      reader.parse(source);
+    } catch (SAXException ex) {
+      // return false
+      ex.printStackTrace();
+    }
+    return errors;
   }
 
 }

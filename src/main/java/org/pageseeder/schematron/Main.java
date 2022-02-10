@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Main class to invoke schematrn ono the command-line
+ * Main class to invoke schematron ono the command-line
  */
 public final class Main {
 
@@ -91,7 +91,7 @@ public final class Main {
     OutputOptions outputOptions = OutputOptions.defaults()
         .indent(this.indent)
         .usePrefixInLocation(this.prefixInLocation);
-    SchematronResult result = validator.validate(this.input, outputOptions);
+    SchematronResult result = validator.options(outputOptions).validate(this.input);
 
     if (this.output != null) {
       FileOutputStream out = new FileOutputStream(this.output);
@@ -182,10 +182,6 @@ public final class Main {
       for (int i=0; i < max - word.length(); i++) padding.append(' ');
     }
     return padding.toString();
-  }
-
-  private static boolean isFileSpecified(File f) {
-    return f != null && f.isFile();
   }
 
   private static ArgumentList parse(String[] args) {

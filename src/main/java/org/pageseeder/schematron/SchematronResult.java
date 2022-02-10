@@ -45,7 +45,9 @@
 package org.pageseeder.schematron;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
 
 import org.pageseeder.schematron.svrl.AssertOrReport;
@@ -62,7 +64,7 @@ import org.pageseeder.schematron.svrl.SchematronOutput;
  * @version 2.0
  * @since 1.0
  */
-public final class SchematronResult {
+public final class SchematronResult implements Serializable {
 
   /** The source file name or systemID */
   private final String systemID;
@@ -214,6 +216,7 @@ public final class SchematronResult {
    */
   @Deprecated
   public List<String> getFailedAssertions() {
+    if (this.assertsCount == 0) return Collections.emptyList();
     SchematronOutput output = toSchematronOutputSilently();
     return SVRL.toMessageList(output.getFailedAsserts());
   }
@@ -223,6 +226,7 @@ public final class SchematronResult {
    */
   @Deprecated
   public List<String> getSuccessfulReports() {
+    if (this.reportsCount == 0) return Collections.emptyList();
     SchematronOutput output = toSchematronOutputSilently();
     return SVRL.toMessageList(output.getSuccessfulReports());
   }

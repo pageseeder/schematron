@@ -48,6 +48,10 @@ public final class DiagnosticReference implements XMLStreamable {
     return text;
   }
 
+  public String getTextAsString() {
+    return this.text != null? this.text.toPlainText() : null;
+  }
+
   public void setDiagnostic(String diagnostic) {
     this.diagnostic = diagnostic;
   }

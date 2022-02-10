@@ -3,7 +3,7 @@
   <sch:title>Elements</sch:title>
 
   <sch:rule context="/" flag="info" icon="info-circle" >
-    <sch:report test="*" diagnostics="fragment" properties="fragment-id"
+    <sch:report test="*" diagnostics="fragment" properties="book-id"
     >Document element <sch:emph><sch:value-of select="name(*)"/></sch:emph>.</sch:report>
   </sch:rule>
 

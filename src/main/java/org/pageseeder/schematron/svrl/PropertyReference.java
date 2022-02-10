@@ -61,6 +61,10 @@ public final class PropertyReference implements XMLStreamable {
     return text;
   }
 
+  public String getTextAsString() {
+    return this.text != null? this.text.toPlainText() : null;
+  }
+
   void setProperty(String property) {
     this.property = property;
   }
