@@ -89,13 +89,15 @@ public class ValidatorTest {
   @Test
   public void testValidateOptions() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(true));
+    factory.setOptions(CompileOptions.defaults());
     File schema = new File("src/test/resources/sch/split-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.validate(sample, OutputOptions.defaults().indent(true));
+    SchematronResult result2 = validator.options(OutputOptions.defaults().indent(true)).validate(sample);
     System.out.println(result.isValid());
     System.out.println(result.getSVRLAsString());
+    Assert.assertEquals(result.getSVRLAsString(), result2.getSVRLAsString());
   }
 
   @Test
@@ -113,14 +115,16 @@ public class ValidatorTest {
   @Test
   public void testValidateNamespaces() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(true));
+    factory.setOptions(CompileOptions.defaults());
     File schema = new File("src/test/resources/sch/namespaces-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/namespaces.xml");
     OutputOptions options = OutputOptions.defaults().usePrefixInLocation(true).indent(true);
     SchematronResult result = validator.validate(sample, options);
+    SchematronResult result2 = validator.options(options).validate(sample);
     System.out.println(result.isValid());
     System.out.println(result.getSVRLAsString());
+    Assert.assertEquals(result.getSVRLAsString(), result2.getSVRLAsString());
   }
 
   @Test
@@ -148,7 +152,7 @@ public class ValidatorTest {
     File schema = new File("src/test/resources/sch/params-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
-    SchematronResult result = validator.getInstance().validate(sample, Collections.singletonMap("gotit", "Yes!!"));
+    SchematronResult result = validator.newInstance().validate(sample, Collections.singletonMap("gotit", "Yes!!"));
     Assert.assertTrue(result.isValid());
     SchematronOutput svrl = result.toSchematronOutput();
     Assert.assertNotNull(svrl);
@@ -180,7 +184,7 @@ public class ValidatorTest {
     parameters.put("greeting", element); // DOM element
 
     // Validate
-    SchematronResult result = validator.getInstance().validate(sample, parameters);
+    SchematronResult result = validator.newInstance().validate(sample, parameters);
     AssertOrReport report = result.toSchematronOutput().getSuccessfulReports().get(0);
 
     // And check parameters
@@ -191,5 +195,35 @@ public class ValidatorTest {
     Assert.assertEquals("fr",  report.getPropertyText("lang"));
     Assert.assertEquals("Bonjour!",  report.getPropertyText("greeting"));
   }
+
+
+  @Test
+  public void testValidateInstanceSpeed() throws SchematronException, ParserConfigurationException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/basic-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+
+    // Validate
+    long t0 = System.currentTimeMillis();
+    for (int i=0; i < 1000; i++) {
+      SchematronResult result = validator.validate(sample);
+      Assert.assertNotNull(result);
+    }
+    t0 = System.currentTimeMillis() - t0;
+
+    long t1 = System.currentTimeMillis();
+    Validator.Instance instance = validator.newInstance();
+    for (int i=0; i < 1000; i++) {
+      SchematronResult result = instance.validate(sample);
+      Assert.assertNotNull(result);
+    }
+    t1 = System.currentTimeMillis() - t1;
+    System.out.println(t0+"ms");
+    System.out.println(t1+"ms");
+
+    Assert.assertTrue(t0 > t1);
+  }
+
 
 }

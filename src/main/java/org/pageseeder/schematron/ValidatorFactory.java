@@ -83,7 +83,7 @@ public final class ValidatorFactory {
   /**
    * The error event listener for the ValidatorFactory.
    */
-  private ErrorListener _listener = this._factory.getErrorListener();
+  private ErrorListener listener = this._factory.getErrorListener();
 
   /**
    * If set to <code>true</code> (default is <code>false</code>), then preprocessing stylesheet will be outputted to
@@ -133,7 +133,7 @@ public final class ValidatorFactory {
    */
   public void setErrorListener(ErrorListener listener) {
     if (listener == null) throw new NullPointerException("The error listener must not be null.");
-    this._listener = listener;
+    this.listener = listener;
   }
 
   /**
@@ -142,7 +142,7 @@ public final class ValidatorFactory {
    * @return The current error handler, which should never be <code>null</code>.
    */
   public ErrorListener getErrorListener() {
-    return this._listener;
+    return this.listener;
   }
 
   /**
@@ -218,7 +218,7 @@ public final class ValidatorFactory {
     // Prepare the compiler
     QueryBinding binding = getQueryBinding(schematron, this.options);
     Precompiler precompiler = getPrecompiler(binding);
-    Compiler compiler = precompiler.prepare(this._listener, this.options.toParameters(phase));
+    Compiler compiler = precompiler.prepare(this.listener, this.options.toParameters(phase));
 
     DOMSource schemaSource = new DOMSource(schematron, systemId);
     Document stylesheet = compiler.compile(schemaSource);

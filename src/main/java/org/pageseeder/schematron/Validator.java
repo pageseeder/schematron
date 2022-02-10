@@ -55,9 +55,15 @@ public final class Validator {
   private final Templates _validator;
 
   /**
-   * The default URI resolver to use
+   * The output options to use for this validator.
    */
-  private URIResolver _resolver;
+  private final OutputOptions _options;
+
+  /**
+   * The URI resolver to use during validation.
+   */
+  // TODO When we remove `setResolver` make this final
+  private URIResolver resolver;
 
   /**
    * Constructs a new Validator object for a given Schematron templates.
@@ -67,17 +73,35 @@ public final class Validator {
    * @throws NullPointerException If the templates are <code>null</code>.
    */
   Validator(Templates templates) {
+    this(templates, null, null);
+  }
+
+  private Validator(Templates templates, OutputOptions defaultOptions, URIResolver defaultResolver) {
     if (templates == null)
       throw new NullPointerException("A validator cannot be constructed with null templates");
     this._validator = templates;
-    this._resolver = null;
+    this._options = defaultOptions != null ? defaultOptions : OutputOptions.defaults();
+    this.resolver = defaultResolver;
   }
 
   /**
-   * @param resolver A URI resolver to use during validation.
+   * Return a new validator with the specified output options.
+   *
+   * @param options The output options to use for this validator.
+   * @return A new validator
    */
-  public void setResolver(URIResolver resolver) {
-    this._resolver = resolver;
+  public Validator options(OutputOptions options) {
+    return new Validator(this._validator, options, this.resolver);
+  }
+
+  /**
+   * Return a new validator with the specified URI resolver.
+   *
+   * @param resolver The default resolved to use for this validator.
+   * @return A new validator
+   */
+  public Validator resolver(URIResolver resolver) {
+    return new Validator(this._validator, this._options, resolver);
   }
 
   /**
@@ -88,18 +112,7 @@ public final class Validator {
    * @throws SchematronException Should an error occur during validation.
    */
   public SchematronResult validate(File xml) throws SchematronException {
-    return validate(new StreamSource(xml));
-  }
-
-  /**
-   * Performs validation of the passed XML data.
-   *
-   * @return the results of the validation.
-   *
-   * @throws SchematronException Should an error occur during validation.
-   */
-  public SchematronResult validate(File xml, OutputOptions options) throws SchematronException {
-    return validate(new StreamSource(xml), options);
+    return validate(new StreamSource(xml), Collections.emptyMap());
   }
 
   /**
@@ -110,7 +123,54 @@ public final class Validator {
    * @throws SchematronException Should an error occur during validation.
    */
   public SchematronResult validate(Source xml) throws SchematronException {
-    return validate(xml, OutputOptions.defaults(), this._resolver);
+    return validate(xml, Collections.emptyMap());
+  }
+
+  /**
+   * Validates the XML data.
+   *
+   * @implNote This method is thread-safe and create a new instance
+   *
+   * @param xml        XML file to validate
+   * @param parameters The parameters to send to the schema during validation
+   *
+   * @return the results of the validation.
+   *
+   * @throws SchematronException Should an error occur during validation.
+   */
+  public SchematronResult validate(File xml, Map<String, Object> parameters) throws SchematronException {
+    return validate(new StreamSource(xml), parameters);
+  }
+
+  /**
+   * Validates the XML data.
+   *
+   * @implNote This method is thread-safe and create a new instance
+   *
+   * @param xml        XML source to validate
+   * @param parameters The parameters to send to the schema during validation
+   *
+   * @return the results of the validation.
+   *
+   * @throws SchematronException Should an error occur during validation.
+   */
+  public SchematronResult validate(Source xml, Map<String, Object> parameters) throws SchematronException {
+    return newInstance().validate(xml, parameters);
+  }
+
+  // START Deprecated methods -------------------------------------------------
+  // TODO Remove in Schematron 3.1+
+
+  /**
+   * @implNote This method is deprecated as it mutates this object.
+   *
+   * @param resolver A URI resolver to use during validation.
+   *
+   * @deprecated Use validator.resolver(URIResolver) instead
+   */
+  @Deprecated
+  public void setResolver(URIResolver resolver) {
+    this.resolver = resolver;
   }
 
   /**
@@ -123,8 +183,24 @@ public final class Validator {
    *
    * @throws SchematronException Should an error occur during validation.
    */
+  @Deprecated
+  public SchematronResult validate(File xml, OutputOptions options) throws SchematronException {
+    return validate(new StreamSource(xml), options, this.resolver);
+  }
+
+  /**
+   * Validates the XML data using the default resolver.
+   *
+   * @param xml      XML source to validate
+   * @param options  The output options
+   *
+   * @return the results of the validation.
+   *
+   * @throws SchematronException Should an error occur during validation.
+   */
+  @Deprecated
   public SchematronResult validate(Source xml, OutputOptions options) throws SchematronException {
-    return validate(xml, options, this._resolver);
+    return validate(xml, options, this.resolver);
   }
 
   /**
@@ -138,6 +214,7 @@ public final class Validator {
    *
    * @throws SchematronException Should an error occur during validation.
    */
+  @Deprecated
   public SchematronResult validate(Source xml, OutputOptions options, URIResolver resolver) throws SchematronException {
     return validate(xml, options, resolver, Collections.emptyMap());
   }
@@ -153,25 +230,17 @@ public final class Validator {
    *
    * @throws SchematronException Should an error occur during validation.
    */
+  @Deprecated
   public SchematronResult validate(Source xml, OutputOptions options, URIResolver resolver, Map<String, Object> parameters) throws SchematronException {
-    Transformer transformer = newTransformer(this._validator, options, resolver);
-    Instance instance = new Instance(transformer, options);
-    return instance.validate(xml, parameters);
+    Validator actual = new Validator(this._validator, options, resolver);
+    return actual.newInstance().validate(xml, parameters);
   }
 
-  public Instance getInstance() throws SchematronException {
-    Transformer transformer = newTransformer(this._validator, OutputOptions.defaults(), null);
+  // END Deprecated methods -------------------------------------------------
+
+  public Instance newInstance() throws SchematronException {
+    Transformer transformer = newTransformer(this._validator, this._options, this.resolver);
     return new Instance(transformer, OutputOptions.defaults());
-  }
-
-  public Instance getInstance(OutputOptions options) throws SchematronException {
-    Transformer transformer = newTransformer(this._validator, options, null);
-    return new Instance(transformer, options);
-  }
-
-  public Instance getInstance(OutputOptions options, URIResolver resolver) throws SchematronException {
-    Transformer transformer = newTransformer(this._validator, options, resolver);
-    return new Instance(transformer, options);
   }
 
   private static Transformer newTransformer(Templates validator, OutputOptions options, URIResolver resolver)
@@ -200,6 +269,8 @@ public final class Validator {
    *
    * <p>It is not thread-safe</p>
    *
+   * @implNote This class lets you reuse a transformer which more efficient when validating a collection of files, but not thread-safe.
+   *
    * @author Christophe Lauret
    *
    * @version 2.0
@@ -210,7 +281,7 @@ public final class Validator {
     private final Transformer _transformer;
     private final OutputOptions _options;
 
-    private boolean validating = false;
+    private volatile boolean validating = false;
 
     private Instance(Transformer transformer, OutputOptions options) {
       this._transformer = transformer;
