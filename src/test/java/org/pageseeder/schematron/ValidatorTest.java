@@ -120,7 +120,6 @@ public class ValidatorTest {
   @Test
   public void testValidatePhase() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(false));
     File schema = new File("src/test/resources/sch/standalone-phase.sch");
     Validator validator = factory.newValidator(schema,"authoring");
     File sample = new File("src/test/resources/xml/books.xml");
