@@ -63,41 +63,58 @@ public class ValidatorTest {
   }
 
   @Test
+  public void testValidateSplitXslt2() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/split-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult resultNo = validator.validate(sample);
+  }
+
+  @Test
   public void testValidateWithMetadata() throws SchematronException {
-    ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(true));
-    File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
+    ValidatorFactory factory = new ValidatorFactory(CompileOptions.defaults().metadata(true));
+    File schema = new File("src/test/resources/sch/basic-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.validate(sample);
-    System.out.println(result.isValid());
-    System.out.println(result.getSVRLAsString());
+    Assert.assertTrue(result.getSVRLAsString().contains("<svrl:metadata "));
   }
 
   @Test
-  public void testValidateSplitNoMetadata2() throws SchematronException {
-    ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults().metadata(false));
-    File schema = new File("src/test/resources/sch/split-xslt2.sch");
+  public void testValidateNoMetadata() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory(CompileOptions.defaults().metadata(false));
+    File schema = new File("src/test/resources/sch/basic-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
     SchematronResult result = validator.validate(sample);
-    System.out.println(result.isValid());
-    System.out.println(result.getSVRLAsString());
+    Assert.assertFalse(result.getSVRLAsString().contains("<svrl:metadata "));
   }
 
   @Test
-  public void testValidateOptions() throws SchematronException {
+  public void testValidateIndent() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults());
-    File schema = new File("src/test/resources/sch/split-xslt2.sch");
+    File schema = new File("src/test/resources/sch/basic-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/books.xml");
-    SchematronResult result = validator.validate(sample, OutputOptions.defaults().indent(true));
-    SchematronResult result2 = validator.options(OutputOptions.defaults().indent(true)).validate(sample);
-    System.out.println(result.isValid());
-    System.out.println(result.getSVRLAsString());
-    Assert.assertEquals(result.getSVRLAsString(), result2.getSVRLAsString());
+    String svrlIndent = validator.options(OutputOptions.defaults().indent(true)).validate(sample).getSVRLAsString();
+    String svrlNoIndent = validator.options(OutputOptions.defaults().indent(false)).validate(sample).getSVRLAsString();
+    Assert.assertTrue(svrlIndent.length() > svrlNoIndent.length());
+    Assert.assertEquals(
+        svrlIndent.replaceAll("\\s+", ""),
+        svrlNoIndent.replaceAll("\\s+", ""));
+  }
+
+  @Test
+  public void testValidateOmitXmlDeclaration() throws SchematronException {
+    ValidatorFactory factory = new ValidatorFactory();
+    File schema = new File("src/test/resources/sch/basic-xslt2.sch");
+    Validator validator = factory.newValidator(schema);
+    File sample = new File("src/test/resources/xml/books.xml");
+    SchematronResult resultNo = validator.options(OutputOptions.defaults().omitXmlDeclaration(false)).validate(sample);
+    Assert.assertTrue(resultNo.getSVRLAsString().contains("<?xml"));
+    SchematronResult resultYes = validator.options(OutputOptions.defaults().omitXmlDeclaration(true)).validate(sample);
+    Assert.assertFalse(resultYes.getSVRLAsString().contains("<?xml"));
   }
 
   @Test
@@ -115,16 +132,13 @@ public class ValidatorTest {
   @Test
   public void testValidateNamespaces() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
-    factory.setOptions(CompileOptions.defaults());
     File schema = new File("src/test/resources/sch/namespaces-xslt2.sch");
     Validator validator = factory.newValidator(schema);
     File sample = new File("src/test/resources/xml/namespaces.xml");
     OutputOptions options = OutputOptions.defaults().usePrefixInLocation(true).indent(true);
-    SchematronResult result = validator.validate(sample, options);
-    SchematronResult result2 = validator.options(options).validate(sample);
+    SchematronResult result = validator.options(options).validate(sample);
     System.out.println(result.isValid());
     System.out.println(result.getSVRLAsString());
-    Assert.assertEquals(result.getSVRLAsString(), result2.getSVRLAsString());
   }
 
   @Test
