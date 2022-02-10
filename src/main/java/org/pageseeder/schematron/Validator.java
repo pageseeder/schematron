@@ -245,7 +245,7 @@ public final class Validator {
 
   public Instance newInstance() throws SchematronException {
     Transformer transformer = newTransformer(this._validator, this._options, this.resolver);
-    return new Instance(transformer, OutputOptions.defaults());
+    return new Instance(transformer, this._options);
   }
 
   private static Transformer newTransformer(Templates validator, OutputOptions options, URIResolver resolver)
