@@ -47,15 +47,10 @@ package org.pageseeder.schematron;
 import org.w3c.dom.Document;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import javax.xml.transform.ErrorListener;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -89,10 +84,9 @@ public final class ValidatorFactory {
   private ErrorListener listener;
 
   /**
-   * If set to <code>true</code> (default is <code>false</code>), then preprocessing stylesheet will be outputted to
-   * file debug.xslt
+   * Indicates where the compiled stylesheets should be saved for debugging.
    */
-  private boolean debugMode = false;
+  private DebugOutput debug = (systemId) -> null;
 
   /**
    * Default compile options for this factory.
@@ -121,12 +115,12 @@ public final class ValidatorFactory {
     this.options = Objects.requireNonNull(options);
   }
 
-  private ValidatorFactory(TransformerFactory factory, CompileOptions options, ErrorListener listener, Class<URIResolver> resolver, boolean debugMode) {
+  private ValidatorFactory(TransformerFactory factory, CompileOptions options, ErrorListener listener, Class<URIResolver> resolver, DebugOutput debug) {
     this._factory = factory;
     this.options = Objects.requireNonNull(options);
     this.listener = listener;
     this.resolver = resolver;
-    this.debugMode = debugMode;
+    this.debug = debug;
   }
 
   @Deprecated
@@ -135,7 +129,7 @@ public final class ValidatorFactory {
   }
 
   public ValidatorFactory options(CompileOptions options) {
-    return new ValidatorFactory(this._factory, options, this.listener, this.resolver, this.debugMode);
+    return new ValidatorFactory(this._factory, options, this.listener, this.resolver, this.debug);
   }
 
   public CompileOptions getOptions() {
@@ -157,7 +151,7 @@ public final class ValidatorFactory {
   }
 
   public ValidatorFactory errorListener(ErrorListener listener) {
-    return new ValidatorFactory(this._factory, this.options, listener, this.resolver, this.debugMode);
+    return new ValidatorFactory(this._factory, this.options, listener, this.resolver, this.debug);
   }
 
   /**
@@ -175,11 +169,15 @@ public final class ValidatorFactory {
    */
   @Deprecated
   public void setDebugMode(boolean debugMode) {
-    this.debugMode = debugMode;
+    if (debugMode) {
+      this.debug = (systemId) -> new OutputStreamWriter(new FileOutputStream("debug.xsl"), StandardCharsets.UTF_8);
+    } else {
+      this.debug = (systemId) -> null;
+    }
   }
 
-  public ValidatorFactory debugMode(boolean debugMode) {
-    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debugMode);
+  public ValidatorFactory debug(DebugOutput debug) {
+    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debug);
   }
 
   /**
@@ -191,7 +189,7 @@ public final class ValidatorFactory {
   }
 
   public ValidatorFactory resolver(Class<URIResolver> resolver) {
-    return new ValidatorFactory(this._factory, this.options, this.listener, this.resolver, debugMode);
+    return new ValidatorFactory(this._factory, this.options, this.listener, resolver, this.debug);
   }
 
   /**
@@ -259,14 +257,17 @@ public final class ValidatorFactory {
     stylesheet.setDocumentURI(systemId);
 
     // check debug mode, if true then print the preprocessing results to debug.xslt
-    if (this.debugMode) {
+    if (this.debug != null) {
       try {
-        FileWriter writer = new FileWriter("debug.xslt");
-        StreamResult result = new StreamResult(writer);
-        Transformer transformer = this._factory.newTransformer();
-        transformer.transform(new DOMSource(stylesheet), result);
+        Writer writer = this.debug.getWriter(systemId);
+        if (writer != null) {
+          StreamResult result = new StreamResult(writer);
+          Transformer transformer = this._factory.newTransformer();
+          transformer.setOutputProperty(OutputKeys.INDENT, this.debug.indent() ? "yes" : "no");
+          transformer.transform(new DOMSource(stylesheet), result);
+        }
       } catch (TransformerException | IOException ex) {
-        throw new SchematronException("Unable to save debug.xslt", ex);
+        throw new SchematronException("Unable to save debug output", ex);
       }
     }
 

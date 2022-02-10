@@ -1,5 +1,6 @@
 package org.pageseeder.schematron;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
@@ -75,9 +76,14 @@ public final class ValidatorFactoryTest {
     factory.newValidator(schema);
   }
 
-
-
-
+  @Test
+  public void testCompileWithDebug() throws SchematronException {
+    StringWriter debug = new StringWriter();
+    ValidatorFactory factory = new ValidatorFactory().debug((systemId -> debug));
+    File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debug.toString().length() > 0);
+  }
 
   private static List<String> validateSchematron(InputSource source) throws IOException {
     List<String> errors = new ArrayList<>();

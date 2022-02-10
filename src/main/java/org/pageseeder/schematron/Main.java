@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Main class to invoke schematrn ono the command-line
+ * Main class to invoke schematron ono the command-line
  */
 public final class Main {
 
