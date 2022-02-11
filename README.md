@@ -9,14 +9,15 @@ This library provides a simple Schematron validator in Java.
 This project was initially forked from Google Code <https://code.google.com/p/schematron/> licenced 
 under MIT and developed by Rick Jelliffe and others.
 
-Most of the API has been refactored to provide a simple Java API.
+Most of the API has been refactored to provide a simple fluent-style Java API.
+The core classes are designed to create immutable objects to help with thread-safety.
 
 ## SchXslt
 
 This library includes the XSLT-based Schematron processor from SchXslt
   https://github.com/schxslt/schxslt
 
-SchXslt is copyright (c) 2018–2021 by David Maus <dmaus@dmaus.name> and 
+SchXslt is copyright (c) 2018–2022 by David Maus <dmaus@dmaus.name> and 
 released under the terms of the MIT license.
 
 ## Dependencies
@@ -43,16 +44,34 @@ Basic example, using defaults settings returned by
   SchematronResult result = validator.validate(sample);
 ```
 
-To specify a different phase:
+### Phases
+
+Validators are specific to a phase, use the factory to generate a validator
+with a different phase:
 ```java
-  SchematronResult result = validator.validate(sample, "test");
+  Validator validator = factory.newValidator(sample, "test");
+```
+
+### Parameters
+
+To send parameters to your schema, ensure that your schema defines global parameters:
+```xml
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
+  <sch:let name="max" value="100" />
+  ...
+</sch:schematron>
+```
+
+Use a `Map<String, Object>` when validating:
+```java
+  Map<String,Object> parameters = Collection.singletonMap("max", 200);
+  SchematronResult result = validator.validate(sample, parameters);
 ```
 
 ### SRVL
 
-The `SchematronResult` object simply holds the SVRL output, whether the 
-document is valid, and how many failed assertions or successful reports in
-includes.
+The `SchematronResult` object simply holds the SVRL output, whether the document
+is valid, and how many failed assertions or successful reports in includes.
 
 To simply print the SVRL
 ```java
@@ -61,9 +80,51 @@ To simply print the SVRL
 
 To get the SVRL as an object model:
 ```java
-  SchematronOutput output = results.getSchematronOutput()
+  SchematronOutput output = results.toSchematronOutput();
 ```
 
+### Validator instances
+
+A `Validator` is thread-safe. Internally, it only holds a copy of the `Templates` 
+used for validation and the configuration. A new `Transformer` is created for each
+validation.
+
+To speed things up, you can reuse the `Transformer` by creating a `Validator.Instance`.
+Instances are not thread-safe but when used serially, for example when validating
+files in a folder or a collection of files, they are significantly faster:
+
+```java
+  // Create a reusable instance wrapping a transformer 
+  Validator.Instance instance = validator.newInstance();
+
+  // Reuse the same instance, for a collection of files
+  for (File file : files) {
+    instance.validate(file);
+  }
+```
+
+### Debugging
+
+To help with debugging, you can set up the `ValidatorFactory` to save a copy of
+the generated XSLT stylesheet used for validation. This can be useful to interpret
+errors thrown during compilation or understand who the stylesheet is generated.
+
+You can use the default debug option which save files in the current directory:
+```java
+  // Saves 
+  ValidatorFactory factory = new ValidatorFactory().enableDebug();
+```
+
+Or specify your own:
+```java
+  // Debug method takes a DebugOutput object
+  ValidatorFactory factory = new ValidatorFactory()
+      .debug((systemId) -> {
+          File debug = Files.createTempFile("schematron-", ".xsl").toFile();
+          System.err.println("debug file: "+debug.getAbsolutePath());
+          return new FileWriter(debug);
+      });
+```
 
 ## CLI
 
@@ -76,9 +137,6 @@ java -cp pso-schematron-2.0.0.jar:Saxon-HE-10.6.jar \
       -i example/source.xml \
       -s example/schema.sch
 ```
-
-NB. Using the `-jar` option with `java` takes precedence over the classpath
-`-cp` or `-classpath` and does not work.
 
 Command-line options:
 
@@ -93,6 +151,9 @@ Command-line options:
 -c or --compact             Flag to only return asserts and reports in SVRL
 -t or --indent              Flag to indent the SVRL output
 ```
+
+NB. Using the `-jar` option with `java` takes precedence over the classpath
+`-cp` or `-classpath` and **does not work**.
 
 ## Compile options
 
