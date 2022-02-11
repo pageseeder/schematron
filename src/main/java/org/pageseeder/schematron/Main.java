@@ -82,11 +82,10 @@ public final class Main {
   }
 
   public void validate() throws SchematronException, IOException {
-    ValidatorFactory factory = new ValidatorFactory();
     CompileOptions compileOptions = CompileOptions.defaults()
         .metadata(this.metadata)
         .compact(this.compact);
-    factory.setOptions(compileOptions);
+    ValidatorFactory factory = new ValidatorFactory(compileOptions);
     Validator validator = factory.newValidator(this.schema);
     OutputOptions outputOptions = OutputOptions.defaults()
         .indent(this.indent)
