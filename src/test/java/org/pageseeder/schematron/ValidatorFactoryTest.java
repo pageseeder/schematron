@@ -7,8 +7,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class ValidatorFactoryTest {
 
@@ -83,6 +85,22 @@ public final class ValidatorFactoryTest {
     File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
     factory.newValidator(schema);
     Assert.assertTrue(debug.toString().length() > 0);
+  }
+
+  @Test
+  public void testCompileWithDebugFile() throws SchematronException {
+    AtomicReference<File> debugFile = new AtomicReference<>();
+    ValidatorFactory factory = new ValidatorFactory()
+        .debug((systemId) -> {
+          File debug = Files.createTempFile("schematron-", ".xsl").toFile();
+          debug.deleteOnExit();
+          debugFile.set(debug);
+          return new FileWriter(debug);
+        });
+    File schema = new File("src/test/resources/sch/standalone-xslt2.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debugFile.get().exists());
+    Assert.assertTrue(debugFile.get().length() > 0);
   }
 
   private static List<String> validateSchematron(InputSource source) throws IOException {
