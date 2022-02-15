@@ -15,6 +15,9 @@
  */
 package org.pageseeder.schematron;
 
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+
 /**
  * Output options for the validator.
  *
@@ -74,7 +77,17 @@ public final class OutputOptions {
     return DEFAULT;
   }
 
+  /**
+   * Set the encoding to use
+   *
+   * @param encoding the charset to use for the output
+   * @return A new set of options.
+   *
+   * @throws UnsupportedCharsetException If the charset is not supported
+   */
   public OutputOptions encoding(String encoding) {
+    // Check the charset
+    Charset.forName(encoding);
     return new OutputOptions(encoding, this.indent, this.omitXmlDeclaration, this.usePrefixInLocation);
   }
 
