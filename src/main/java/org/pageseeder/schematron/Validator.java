@@ -27,13 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.*;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -52,6 +46,18 @@ import javax.xml.transform.stream.StreamSource;
  * @since 1.0
  */
 public final class Validator {
+
+  /**
+   * Does not report errors
+   */
+  private static final ErrorListener QUIET_LISTENER = new ErrorListener() {
+    @Override
+    public void warning(TransformerException ex) {}
+    @Override
+    public void error(TransformerException ex) {}
+    @Override
+    public void fatalError(TransformerException ex) {}
+  };
 
   /**
    * The generated Schematron validator transformer templates.
@@ -298,6 +304,8 @@ public final class Validator {
             this._transformer.setParameter(parameter.getKey(), parameter.getValue());
           }
         }
+        this._transformer.setErrorListener(QUIET_LISTENER);
+
         // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
         SVRLStreamWriter svrl = new SVRLStreamWriter(writer, this._options);
         this._transformer.transform(xml, new StAXResult(svrl));
@@ -305,7 +313,7 @@ public final class Validator {
         result.setReportsCount(svrl.getReportsCount());
 
       } catch (TransformerException ex) {
-        throw new SchematronException("Unable to process file with schematron", ex);
+        throw new ValidationException(ex);
       } catch (XMLStreamException ex) {
         throw new SchematronException("Unable to process SVRL results", ex);
       } finally {

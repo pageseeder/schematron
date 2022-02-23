@@ -15,6 +15,8 @@
  */
 package org.pageseeder.schematron;
 
+import javax.xml.transform.TransformerException;
+
 /**
  * Classes of exceptions occurring while preparing or performing Schematron validation.
  *
@@ -24,7 +26,7 @@ package org.pageseeder.schematron;
  * @version 2.0
  * @since 1.0
  */
-public final class SchematronException extends Exception {
+public class SchematronException extends Exception {
 
   /** As per requirements. */
   private static final long serialVersionUID = 7541115878853544269L;

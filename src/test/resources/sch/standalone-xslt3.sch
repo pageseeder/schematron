@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2"
-xmlns="">
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt3">
 
   <sch:title>Standalone schema for testing</sch:title>
 

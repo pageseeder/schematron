@@ -64,6 +64,19 @@ public final class ValidatorFactoryTest {
     factory.newValidator(schema);
   }
 
+
+  @Test(expected = SchematronException.class)
+  public void testCompileStaticError() throws Exception {
+    try {
+      ValidatorFactory factory = new ValidatorFactory();
+      File schema = new File("src/test/resources/sch/standalone-static-error.sch");
+      factory.newValidator(schema);
+    } catch (SchematronException ex) {
+      System.out.println(ex.getMessage());
+      throw ex;
+    }
+  }
+
   @Test(expected = SchematronException.class)
   public void testCompileMalformed() throws SchematronException {
     ValidatorFactory factory = new ValidatorFactory();
