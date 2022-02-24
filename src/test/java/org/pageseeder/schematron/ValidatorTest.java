@@ -209,14 +209,22 @@ public class ValidatorTest {
     Assert.assertEquals("Bonjour!",  report.getPropertyText("greeting"));
   }
 
-  @Test
+  @Test(expected = ValidationException.class)
   public void testValidateDynamicError() throws SchematronException {
-    ValidatorFactory factory = new ValidatorFactory();
-    File schema = new File("src/test/resources/sch/standalone-dynamic-error.sch");
-    Validator validator = factory.newValidator(schema);
-    File sample = new File("src/test/resources/xml/websites.xml");
-    OutputOptions options = OutputOptions.defaults().indent(true);
-    SchematronResult result = validator.options(options).validate(sample);
+    try {
+      ValidatorFactory factory = new ValidatorFactory();
+      File schema = new File("src/test/resources/sch/standalone-dynamic-error.sch");
+      Validator validator = factory.newValidator(schema);
+      File sample = new File("src/test/resources/xml/websites.xml");
+      OutputOptions options = OutputOptions.defaults().indent(true);
+      SchematronResult result = validator.options(options).validate(sample);
+    } catch (ValidationException ex) {
+      Assert.assertNotNull(ex.getErrorCode());
+      Assert.assertNotNull(ex.getFailingExpression());
+      Assert.assertNotNull(ex.getMatchPattern());
+      Assert.assertNotNull(ex.getMessage());
+      throw ex;
+    }
 //    System.out.println(result.isValid());
 //    System.out.println(result.getSVRLAsString());
   }
