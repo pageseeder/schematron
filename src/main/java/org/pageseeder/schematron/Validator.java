@@ -15,22 +15,19 @@
  */
 package org.pageseeder.schematron;
 
+import org.pageseeder.schematron.svrl.SVRLByteArray;
+import org.pageseeder.schematron.svrl.SVRLDataFile;
 import org.pageseeder.schematron.svrl.SVRLStreamWriter;
+import org.pageseeder.schematron.svrl.SVRLString;
 
-import java.io.File;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
+import javax.xml.transform.*;
 import javax.xml.transform.stax.StAXResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -49,6 +46,18 @@ import javax.xml.transform.stream.StreamSource;
  * @since 1.0
  */
 public final class Validator {
+
+  /**
+   * Does not report errors
+   */
+  private static final ErrorListener QUIET_LISTENER = new ErrorListener() {
+    @Override
+    public void warning(TransformerException ex) {}
+    @Override
+    public void error(TransformerException ex) {}
+    @Override
+    public void fatalError(TransformerException ex) {}
+  };
 
   /**
    * The generated Schematron validator transformer templates.
@@ -235,13 +244,59 @@ public final class Validator {
      * @throws SchematronException Should an error occur during validation.
      */
     public SchematronResult validate(Source xml, Map<String, Object> parameters) throws SchematronException {
-      if (this.validating) throw new IllegalStateException("Unable to validate multiple source concurrently");
-      this.validating = true;
-
       // Generate the result
       StringWriter writer = new StringWriter();
-      SchematronResult result = new SchematronResult(xml.getSystemId());
+      SchematronResult.Builder result = transform(xml, parameters, writer);
+      result.setSVRL(new SVRLString(writer.toString()));
+      return result.build();
+    }
 
+    /**
+     * Validates the XML data.
+     *
+     * @param xml XML source to validate
+     * @param parameters Parameters to pass to the validators
+     *
+     * @return the results of the validation.
+     *
+     * @throws SchematronException Should an error occur during validation.
+     */
+    public SchematronResult validateToBytes(Source xml, Map<String, Object> parameters) throws SchematronException {
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      Charset charset = Charset.forName(this._options.encoding());
+      OutputStreamWriter writer = new OutputStreamWriter(out, charset);
+      SchematronResult.Builder result = transform(xml, parameters, writer);
+      result.setSVRL(new SVRLByteArray(out.toByteArray(), charset));
+      return result.build();
+    }
+
+    /**
+     * Validates the XML data.
+     *
+     * @param xml XML source to validate
+     * @param parameters Parameters to pass to the validators
+     *
+     * @return the results of the validation.
+     *
+     * @throws SchematronException Should an error occur during validation.
+     */
+    public SchematronResult validateToFile(Source xml, Map<String, Object> parameters, File file) throws SchematronException {
+      try (FileOutputStream out = new FileOutputStream(file)) {
+        Charset charset = Charset.forName(this._options.encoding());
+        OutputStreamWriter writer = new OutputStreamWriter(out, charset);
+        SchematronResult.Builder result = transform(xml, parameters, writer);
+        result.setSVRL(new SVRLDataFile(file, charset));
+        return result.build();
+      } catch (IOException ex) {
+        throw new SchematronException(ex);
+      }
+    }
+
+    private SchematronResult.Builder transform(Source xml, Map<String, Object> parameters, Writer writer) throws SchematronException {
+      if (this.validating) throw new IllegalStateException("Unable to validate multiple source concurrently");
+      this.validating = true;
+      SchematronResult.Builder result = new SchematronResult.Builder();
+      result.setSystemID(xml.getSystemId());
       try {
         // Set the parameters if any
         if (parameters != null && parameters.size() > 0) {
@@ -249,21 +304,21 @@ public final class Validator {
             this._transformer.setParameter(parameter.getKey(), parameter.getValue());
           }
         }
+        this._transformer.setErrorListener(QUIET_LISTENER);
 
         // NB Saxon does not support XMLEventWriter, so we use XMLStreamWriter instead
         SVRLStreamWriter svrl = new SVRLStreamWriter(writer, this._options);
         this._transformer.transform(xml, new StAXResult(svrl));
-        result.setSVRL(writer.toString(), svrl.getAssertsCount(), svrl.getReportsCount());
-//      transformer.transform(xml, new StreamResult(writer));
+        result.setAssertsCount(svrl.getAssertsCount());
+        result.setReportsCount(svrl.getReportsCount());
 
       } catch (TransformerException ex) {
-        throw new SchematronException("Unable to process file with schematron", ex);
+        throw new ValidationException(ex);
       } catch (XMLStreamException ex) {
         throw new SchematronException("Unable to process SVRL results", ex);
       } finally {
         this.validating = false;
       }
-
       return result;
     }
 
