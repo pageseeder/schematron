@@ -10,9 +10,6 @@ description = "$title"
 
 apply from: 'gradle/publish-mavencentral.gradle'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
 }
@@ -29,11 +26,11 @@ configurations {
 
 dependencies {
 
-  include('name.dmaus.schxslt:schxslt:1.8.6')
+  include('name.dmaus.schxslt:schxslt:1.9')
 
   testImplementation('junit:junit:4.13.2')
 
-  testRuntimeOnly('net.sf.saxon:Saxon-HE:10.6')
+  testRuntimeOnly('net.sf.saxon:Saxon-HE:11.3')
 
 }
 
@@ -52,6 +49,11 @@ jar {
   }
 }
 
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
+  }
+}
 
 application {
   mainClassName = 'org.pageseeder.schematron.Main'
