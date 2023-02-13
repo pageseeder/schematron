@@ -15,6 +15,7 @@
  */
 package org.pageseeder.schematron;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.*;
 import javax.xml.transform.stream.StreamSource;
 import java.net.URL;
@@ -65,6 +66,8 @@ final class Precompiler {
   public static Precompiler create(TransformerFactory transformerFactory, QueryBinding binding) throws SchematronException {
     List<Templates> pipeline = new ArrayList<>(3);
     try {
+      // If DTDs (doctypes) are disallowed, almost all XML entity attacks are prevented
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       for (String step : STEPS) {
         String path = "xslt/"+binding.version()+"/"+step;
         URL url = Precompiler.class.getResource(path);

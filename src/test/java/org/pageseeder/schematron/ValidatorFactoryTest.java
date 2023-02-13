@@ -64,7 +64,6 @@ public final class ValidatorFactoryTest {
     factory.newValidator(schema);
   }
 
-
   @Test(expected = SchematronException.class)
   public void testCompileStaticError() throws Exception {
     try {
@@ -116,15 +115,44 @@ public final class ValidatorFactoryTest {
     Assert.assertTrue(debugFile.get().length() > 0);
   }
 
+  @Test(expected = SchematronException.class)
+  public void testNoXXEWithExpansion() throws SchematronException {
+    StringWriter debug = new StringWriter();
+    ValidatorFactory factory = new ValidatorFactory().debug((systemId -> debug));
+    File schema = new File("src/test/resources/sch/xxe_expansion.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debug.toString().length() > 0);
+  }
+
+  @Test(expected = SchematronException.class)
+  public void testNoXXEWithFile() throws SchematronException {
+    StringWriter debug = new StringWriter();
+    ValidatorFactory factory = new ValidatorFactory().debug((systemId -> debug));
+    File schema = new File("src/test/resources/sch/xxe_file.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debug.toString().length() > 0);
+  }
+
+  @Test(expected = SchematronException.class)
+  public void testNoXXEWithURL() throws SchematronException {
+    StringWriter debug = new StringWriter();
+    ValidatorFactory factory = new ValidatorFactory().debug((systemId -> debug));
+    File schema = new File("src/test/resources/sch/xxe_url.sch");
+    factory.newValidator(schema);
+    Assert.assertTrue(debug.toString().length() > 0);
+  }
+
   private static List<String> validateSchematron(InputSource source) throws IOException {
     List<String> errors = new ArrayList<>();
     try {
       XMLReader reader = XMLReaderFactory.createXMLReader();
+      reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // To prevent XXE
       reader.setFeature("http://xml.org/sax/features/validation", true);
       reader.setFeature("http://apache.org/xml/features/validation/schema", true);
       reader.setFeature("http://apache.org/xml/features/validation/schema-full-checking", true);
       String path = new File("src/test/resources/xsd/iso-schematron-2016.xsd").getAbsolutePath();
       reader.setProperty("http://apache.org/xml/properties/schema/external-schemaLocation", "http://purl.oclc.org/dsdl/schematron" + " " + path);
+
       reader.setErrorHandler(new DefaultHandler() {
         @Override
         public void error(SAXParseException ex) {
