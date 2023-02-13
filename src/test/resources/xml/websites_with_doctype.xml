@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE websites [
+    <!ELEMENT name (#PCDATA)>
+    <!ELEMENT category (#PCDATA)>
+    <!ELEMENT status (#PCDATA)>
+    <!ELEMENT website (name, category, status)>
+    <!ATTLIST website url CDATA #REQUIRED>
+    <!ELEMENT websites (website*) >
+    <!ENTITY on "Online" >
+    <!ENTITY off "Offline" >
+]><websites>
+  <website url="https://dev.pageseeder.com">
+    <name>PageSeeder</name>
+    <category>Developer</category>
+    <status>&on;</status>
+  </website>
+  <website url="http://example.com">
+    <name>Example</name>
+    <category>Testing</category>
+    <status>&off;</status>
+  </website>
+  <website url="https://localhost:9000">
+    <name>Localhost</name>
+    <category>Testing</category>
+    <status>&off;</status>
+  </website>
+</websites>

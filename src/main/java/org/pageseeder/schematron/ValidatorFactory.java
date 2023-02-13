@@ -50,6 +50,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
@@ -117,7 +118,7 @@ public final class ValidatorFactory {
    * Constructs a new factory with the specified compile options.
    */
   public ValidatorFactory(CompileOptions options) {
-    this._factory = TransformerFactory.newInstance();
+    this._factory = newSafeTransformerFactory();
     this._options = Objects.requireNonNull(options);
     this._listener = this._factory.getErrorListener();
     this._resolver = null;
@@ -334,7 +335,6 @@ public final class ValidatorFactory {
     return precompiler;
   }
 
-
   /**
    * Given full path to the path and return file name only
    *
@@ -344,6 +344,13 @@ public final class ValidatorFactory {
   private static String removePathExtension(String filepath) {
     String[] split = filepath.split("[/\\\\]");
     return split[split.length - 1].replaceAll(".sch$", "");
+  }
+
+  private static TransformerFactory newSafeTransformerFactory() {
+    TransformerFactory factory = TransformerFactory.newInstance();
+    // If DTDs (doctypes) are disallowed, almost all XML entity attacks are prevented
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    return factory;
   }
 
 }
